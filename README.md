@@ -1,4 +1,12 @@
-## About the Multi-Purpose Tactical Pack 🎯♟️✨
+## About the Multi-Purpose Tactical Pack 🎯♟️
+
+  <img
+    align="right"
+    src="logo.png"
+    alt="Optimized-Chess-Puzzles logo"
+    width="240"
+    height="240"
+  />
 
 This tactical pack has been designed as a **versatile and scientifically optimized training tool** that adapts to several chess learning approaches:
 

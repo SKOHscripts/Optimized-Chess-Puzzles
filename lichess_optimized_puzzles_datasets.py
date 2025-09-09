@@ -1,17 +1,17 @@
 # Copyright (c) 2025 github.com/SKOHscripts
-# 
+#
 # This software is licensed under the MIT License.
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -58,8 +58,10 @@ def safe_str(value):
     str
         String representation of the value, or empty string if NaN/None
     """
+
     if pd.isna(value):
         return ""
+
     return str(value)
 
 
@@ -87,6 +89,7 @@ def adjust_fen_and_moves(fen, moves):
     moves_list = moves.strip().split()
 
     # Apply the first move to the FEN to get the real puzzle position
+
     if moves_list:
         first_move = board.parse_uci(moves_list[0])
         board.push(first_move)
@@ -107,6 +110,7 @@ def download_puzzle_db():
     Downloads the compressed puzzle database from Lichess servers.
     The file is approximately 200MB compressed.
     """
+
     if not os.path.exists(PUZZLE_FILE):
         print("Downloading puzzle database...")
         r = requests.get(PUZZLE_URL, stream=True)
@@ -125,6 +129,7 @@ def decompress_zst():
     Requires zstd to be installed on the system.
     The decompressed file is approximately 1GB.
     """
+
     if not os.path.exists(CSV_FILE):
         print("Decompressing zst file...")
         os.system(f"zstd -d {PUZZLE_FILE}")
@@ -185,7 +190,9 @@ def sample_by_themes(tranche, target_per_theme=30, popularity_threshold=90):
     theme_dict = defaultdict(list)
 
     for idx, row in tranche.iterrows():
+
         # Split multiple themes (space-separated)
+
         for theme in str(row['Themes']).split():
             if row['Popularity'] >= popularity_threshold:
                 theme_dict[theme].append(row)
@@ -196,6 +203,7 @@ def sample_by_themes(tranche, target_per_theme=30, popularity_threshold=90):
 
     for theme, puzzles in theme_dict.items():
         count = 0
+
         for row in puzzles:
             if row['PuzzleId'] not in selected_ids and count < target_per_theme:
                 selected_ids.add(row['PuzzleId'])
@@ -208,6 +216,7 @@ def sample_by_themes(tranche, target_per_theme=30, popularity_threshold=90):
     for theme in remaining_themes:
         theme_puzzles = tranche[tranche['Themes'].str.contains(theme, na=False)]
         count = 0
+
         for idx, row in theme_puzzles.iterrows():
             if row['PuzzleId'] not in selected_ids and count < target_per_theme // 2:
                 selected_ids.add(row['PuzzleId'])
@@ -215,6 +224,7 @@ def sample_by_themes(tranche, target_per_theme=30, popularity_threshold=90):
                 count += 1
 
     # Ensure minimum puzzle count for intensive training
+
     if len(selected_rows) < 700:
         needed = 700 - len(selected_rows)
         extras = tranche[~tranche['PuzzleId'].isin(selected_ids)].sort_values(
@@ -257,6 +267,7 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
     report_theme_coverage(sampled_rows, "puzzles_1000minus.csv", first_tranche)
 
     # Process intermediate ranges: 1000-1800 ELO in 100-point increments
+
     for elo_start in range(1000, 1800, 100):
         elo_end = elo_start + 100
         tranche = df[(df['Rating'] >= elo_start) & (df['Rating'] < elo_end)]
@@ -350,6 +361,7 @@ def report_theme_coverage(sampled_rows, out_file, tranche):
 
     # Analyze all themes available in the tranche (no threshold filtering)
     tranche_themes = set()
+
     for idx, row in tranche.iterrows():
         for theme in str(row['Themes']).split():
             tranche_themes.add(theme)
@@ -368,9 +380,11 @@ def report_theme_coverage(sampled_rows, out_file, tranche):
     print(f"- Unique themes covered: {len(selected_themes)}")
     print(f"- Distinct themes in tranche (all puzzles): {len(tranche_themes)}")
     print(f"- Real thematic coverage percentage: {percentage_coverage:.1f}%")
+
     for theme, freq in first_themes:
         print(f"  • {theme}: {freq} puzzles")
     print("  • …")
+
     for theme, freq in last_themes:
         print(f"  • {theme}: {freq} puzzles")
     print("—" * 35)
