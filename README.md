@@ -1,5 +1,7 @@
 ## About the Multi-Purpose Tactical Pack 🎯♟️
 
+![Lint](https://github.com/SKOHscripts/Optimized-Chess-Puzzles/actions/workflows/pylint.yml/badge.svg)
+
   <img
     align="right"
     src="logo.png"
