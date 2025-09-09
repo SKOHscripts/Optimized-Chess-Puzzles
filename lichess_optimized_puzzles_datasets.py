@@ -33,10 +33,10 @@ provide comprehensive coverage of tactical themes and opening patterns.
 """
 
 import os
-import pandas as pd
+from collections import defaultdict
+import pandas
 import requests
 import chess
-from collections import defaultdict
 
 # Constants for database URLs and file names
 PUZZLE_URL = "https://database.lichess.org/lichess_db_puzzle.csv.zst"
@@ -59,7 +59,7 @@ def safe_str(value):
         String representation of the value, or empty string if NaN/None
     """
 
-    if pd.isna(value):
+    if pandas.isna(value):
         return ""
 
     return str(value)
@@ -113,10 +113,10 @@ def download_puzzle_db():
 
     if not os.path.exists(PUZZLE_FILE):
         print("Downloading puzzle database...")
-        r = requests.get(PUZZLE_URL, stream=True)
-        with open(PUZZLE_FILE, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
+        request = requests.get(PUZZLE_URL, stream=True, timeout=120)
+        with open(PUZZLE_FILE, "wb") as puzzle_file:
+            for chunk in request.iter_content(chunk_size=8192):
+                puzzle_file.write(chunk)
         print("Download completed.")
     else:
         print("File already downloaded.")
@@ -174,7 +174,7 @@ def sample_by_themes(tranche, target_per_theme=30, popularity_threshold=90):
 
     Parameters
     ----------
-    tranche : pd.DataFrame
+    tranche : pandas.DataFrame
         DataFrame containing puzzles for a specific ELO range
     target_per_theme : int, default=30
         Maximum number of puzzles to select per theme
@@ -252,12 +252,12 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
         Minimum popularity threshold for quality filtering
     """
     # Load the complete puzzle database
-    df = pd.read_csv(csv_file)
+    dataframe = pandas.read_csv(csv_file)
     cols = ['PuzzleId', 'FEN', 'Moves', 'Rating', 'Popularity', 'Themes', 'OpeningTags']
-    df = df[cols]
+    dataframe = dataframe[cols]
 
     # Process beginner range: ELO < 1000
-    first_tranche = df[df['Rating'] < 1000]
+    first_tranche = dataframe[dataframe['Rating'] < 1000]
     sampled_rows = sample_by_themes(
         first_tranche,
         target_per_theme=target_per_theme,
@@ -270,7 +270,7 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
 
     for elo_start in range(1000, 1800, 100):
         elo_end = elo_start + 100
-        tranche = df[(df['Rating'] >= elo_start) & (df['Rating'] < elo_end)]
+        tranche = dataframe[(dataframe['Rating'] >= elo_start) & (dataframe['Rating'] < elo_end)]
         sampled_rows = sample_by_themes(
             tranche,
             target_per_theme=target_per_theme,
@@ -281,7 +281,7 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
         report_theme_coverage(sampled_rows, out_file, tranche)
 
     # Process advanced range: ELO >= 1800
-    last_tranche = df[df['Rating'] >= 1800]
+    last_tranche = dataframe[dataframe['Rating'] >= 1800]
     sampled_rows = sample_by_themes(
         last_tranche,
         target_per_theme=target_per_theme,
@@ -302,9 +302,9 @@ def _write_csv_file(sampled_rows, filename):
     filename : str
         Output CSV filename
     """
-    with open(filename, "w", encoding="utf-8") as f:
+    with open(filename, "w", encoding="utf-8") as puzzle_file:
         # Write CSV header
-        f.write("PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,Tags\n")
+        puzzle_file.write("PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,Tags\n")
 
         for row in sampled_rows:
             # Adjust FEN position and convert moves to SAN notation
@@ -331,7 +331,7 @@ def _write_csv_file(sampled_rows, filename):
             ]
 
             # Write row, replacing commas to avoid CSV conflicts
-            f.write(",".join([v.replace(',', ';') for v in vals]) + "\n")
+            puzzle_file.write(",".join([v.replace(',', ';') for v in vals]) + "\n")
 
 
 def report_theme_coverage(sampled_rows, out_file, tranche):
@@ -347,7 +347,7 @@ def report_theme_coverage(sampled_rows, out_file, tranche):
         Selected puzzle rows for analysis
     out_file : str
         Output filename for context
-    tranche : pd.DataFrame
+    tranche : pandas.DataFrame
         Original tranche data for comparison
     """
     # Analyze themes present in the final selection
@@ -362,7 +362,7 @@ def report_theme_coverage(sampled_rows, out_file, tranche):
     # Analyze all themes available in the tranche (no threshold filtering)
     tranche_themes = set()
 
-    for idx, row in tranche.iterrows():
+    for _, row in tranche.iterrows():
         for theme in str(row['Themes']).split():
             tranche_themes.add(theme)
 
