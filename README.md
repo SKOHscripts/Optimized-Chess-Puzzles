@@ -1,6 +1,8 @@
 ## About the Multi-Purpose Tactical Pack 🎯♟️
 
 ![Lint](https://github.com/SKOHscripts/Optimized-Chess-Puzzles/actions/workflows/pylint.yml/badge.svg)
+![Tests](https://github.com/SKOHscripts/Optimized-Chess-Puzzles/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/gh/SKOHscripts/Optimized-Chess-Puzzles/branch/main/graph/badge.svg)](https://codecov.io/gh/SKOHscripts/Optimized-Chess-Puzzles)
 
   <img
     align="right"
