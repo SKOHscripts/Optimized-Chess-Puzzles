@@ -24,8 +24,9 @@ The deck is available in the following languages: **French**, **German**, **Span
 
 ---
 
-#### Table of contents *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+#### Table of contents
 
+- [Table of contents](#table-of-contents)
 - [Features](#features)
 - [🎯 About This Deck](#-about-this-deck)
 - [🧠 Training Philosophy: Why Visualization Matters](#-training-philosophy-why-visualization-matters)
@@ -33,14 +34,14 @@ The deck is available in the following languages: **French**, **German**, **Span
   - [**1. Woodpecker Method by ELO Range 🔨**](#1-woodpecker-method-by-elo-range-)
   - [**2. Personalized Spaced Repetition 🧠🔄**](#2-personalized-spaced-repetition-)
   - [**3. Targeted Thematic Training 🎨**](#3-targeted-thematic-training-)
-- [🖥️ Interface Design and Scientific Foundations](#-interface-design-and-scientific-foundations)
+- [🔬 Interface Design and Scientific Foundations](#-interface-design-and-scientific-foundations)
   - [**Clean Interface for Cognitive Optimization**](#clean-interface-for-cognitive-optimization)
   - [**Scientific Foundations**](#scientific-foundations)
 - [🔬 Advanced Selection Method by Thematic Sampling](#-advanced-selection-method-by-thematic-sampling)
   - [**1. Data Acquisition and Preparation 📥**](#1-data-acquisition-and-preparation-)
   - [**2. Intelligent Sampling by Thematic Diversity 🎯**](#2-intelligent-sampling-by-thematic-diversity-)
   - [**3. Exhaustive Coverage Guarantee 📊**](#3-exhaustive-coverage-guarantee-)
-  - [**4. Optimized Technical Preprocessing ⚙️**](#4-optimized-technical-preprocessing-)
+  - [**4. Optimized Technical Preprocessing 🔄**](#4-optimized-technical-preprocessing-)
   - [**🎯 Result: Scientifically Optimal Sampling**](#-result-scientifically-optimal-sampling)
 - [🚀 Installation](#-installation)
   - [**Step 1: Install CrowdAnki Plugin**](#step-1-install-crowdanki-plugin)
@@ -53,20 +54,6 @@ The deck is available in the following languages: **French**, **German**, **Span
   - [**Thematic Training 🎨**](#thematic-training-)
 - [🏆 Transform Your Chess Vision](#-transform-your-chess-vision)
   - [📊 Statistics](#-statistics)
-  - [🎯 **Multiple Pack Uses**](#-multiple-pack-uses)
-  - [🖥️ **Clean Interface for Cognitive Optimization**](#-clean-interface-for-cognitive-optimization)
-  - [🚫 **No Piece Movement: A Founded Pedagogical Choice**](#-no-piece-movement-a-founded-pedagogical-choice)
-  - [🔬 **Scientific Bases of Design Choices**](#-scientific-bases-of-design-choices)
-  - [🏆 **Result: A Scientifically Optimized Training Tool**](#-result-a-scientifically-optimized-training-tool)
-- [🔬 **Advanced Selection Method by Thematic Sampling**](#-advanced-selection-method-by-thematic-sampling)
-  - [**1. Data Acquisition and Preparation 📥**](#1-data-acquisition-and-preparation--1)
-  - [**2. Intelligent Sampling by Thematic Diversity 🎯**](#2-intelligent-sampling-by-thematic-diversity--1)
-  - [**3. Exhaustive Coverage Guarantee 📊**](#3-exhaustive-coverage-guarantee--1)
-  - [**4. Optimized Technical Preprocessing ⚙️**](#4-optimized-technical-preprocessing--1)
-  - [**5. Quality Control and Transparency 📈**](#5-quality-control-and-transparency-)
-  - [**6. Data Structure Optimized for Anki 📋**](#6-data-structure-optimized-for-anki-)
-  - [**🎯 Result: Scientifically Optimal Sampling**](#-result-scientifically-optimal-sampling-1)
-
 
 ## Features
 
@@ -89,7 +76,7 @@ The deck is available in the following languages: **French**, **German**, **Span
 </table>
 
 <table>
-  <tr><th scope="col" colspan="2">Green theme, light interface</th></tr>
+  <tr><th scope="col" colspan="2">Green and Paper-sand themes</th></tr>
   <tr><th scope="col">Front</th><th scope="col">Front</th></tr>
   <tr>
     <td><img src="doc/light_green_front.png"></td>
@@ -134,7 +121,7 @@ Thanks to detailed tags (themes and openings), you can create custom decks to wo
 
 ***
 
-## 🖥️ Interface Design and Scientific Foundations
+## 🔬 Interface Design and Scientific Foundations
 
 ### **Clean Interface for Cognitive Optimization**
 
@@ -177,7 +164,7 @@ def sample_by_themes(tranche, target_per_theme=20, popularity_threshold=90):
 ### **3. Exhaustive Coverage Guarantee 📊**
 If thematic sampling produces fewer than 700 puzzles, the script automatically completes with the most popular remaining puzzles, guaranteeing sufficient volume for intensive training while preserving diversity.
 
-### **4. Optimized Technical Preprocessing ⚙️**
+### **4. Optimized Technical Preprocessing 🔄**
 **Crucial point**: Lichess puzzles show the position **before** the opponent's move. The script automatically applies this first move to present the real position to solve, then converts remaining moves to readable notation (SAN).
 
 ### **🎯 Result: Scientifically Optimal Sampling**
