@@ -34,6 +34,7 @@ provide comprehensive coverage of tactical themes and opening patterns.
 
 import os
 from collections import defaultdict
+import re
 import pandas
 import requests
 import chess
@@ -284,7 +285,7 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
     last_tranche = dataframe[dataframe['Rating'] >= 1800]
     sampled_rows = sample_by_themes(
         last_tranche,
-        target_per_theme=target_per_theme,
+        target_per_theme=30,
         popularity_threshold=popularity_threshold
     )
     _write_csv_file(sampled_rows, "puzzles_1800plus.csv")
@@ -294,7 +295,6 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
 def _write_csv_file(sampled_rows, filename):
     """
     Write selected puzzle rows to CSV file with proper formatting.
-
     Parameters
     ----------
     sampled_rows : list
@@ -302,23 +302,29 @@ def _write_csv_file(sampled_rows, filename):
     filename : str
         Output CSV filename
     """
+    def _ocp_prefixed_tokens(text: str):
+        # Split on whitespace and common separators, drop empties, prefix with "OCP::"
+        tokens = [t for t in re.split(r'[\s,;|]+', text.strip()) if t]
+
+        return " ".join(f"OCP::{t}" for t in tokens)
+
     with open(filename, "w", encoding="utf-8") as puzzle_file:
-        # Write CSV header
-        puzzle_file.write("PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,Tags\n")
+        puzzle_file.write(
+            "PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,DisplayTheme,Tags\n",
+            )
 
         for row in sampled_rows:
-            # Adjust FEN position and convert moves to SAN notation
             adj_fen, adj_moves = adjust_fen_and_moves(row['FEN'], row['Moves'])
             san_moves = uci_seq_to_san(adj_fen, adj_moves)
 
-            # Clean theme and opening data
             themes = safe_str(row['Themes'])
             opening = safe_str(row['OpeningTags'])
 
-            # Create unified tags column for easy filtering
-            tags_str = f"{themes} {opening}".strip(" ")
+            # ONLY tags_str is prefixed with "OCP::" per element; original columns unchanged
+            oc_themes = _ocp_prefixed_tokens(themes) if themes else ""
+            oc_openings = _ocp_prefixed_tokens(opening) if opening else ""
+            tags_str = " ".join(x for x in [oc_themes, oc_openings] if x).strip()
 
-            # Prepare row values
             vals = [
                 safe_str(row['PuzzleId']),
                 adj_fen,
@@ -327,10 +333,9 @@ def _write_csv_file(sampled_rows, filename):
                 safe_str(row['Popularity']),
                 themes,
                 opening,
+                safe_str("theme-solarized"),  # default display theme
                 tags_str
             ]
-
-            # Write row, replacing commas to avoid CSV conflicts
             puzzle_file.write(",".join([v.replace(',', ';') for v in vals]) + "\n")
 
 

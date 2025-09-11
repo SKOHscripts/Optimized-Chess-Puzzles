@@ -7,7 +7,7 @@
 
   <img
     align="right"
-    src="logo.png"
+    src="doc/logo.png"
     alt="Optimized-Chess-Puzzles logo"
     width="240"
     height="240"
@@ -89,17 +89,10 @@ The deck is available in the following languages: **French**, **German**, **Span
 </table>
 
 <table>
-  <tr><th scope="col" colspan="1">Green theme, light interface</th></tr>
-  <tr><th scope="col">Front</th></tr>
+  <tr><th scope="col" colspan="2">Green theme, light interface</th></tr>
+  <tr><th scope="col">Front</th><th scope="col">Front</th></tr>
   <tr>
     <td><img src="doc/light_green_front.png"></td>
-  </tr>
-</table>
-
-<table>
-  <tr><th scope="col" colspan="1">Paper-sand theme, light interface</th></tr>
-  <tr><th scope="col">Front</th></tr>
-  <tr>
     <td><img src="doc/light_paper_sand_front.png"></td>
   </tr>
 </table>
@@ -116,7 +109,7 @@ This tactical deck has been designed as a **versatile and scientifically optimiz
 
 The only way to use puzzles and transpose them into real games is to learn to calculate, visualize the move tree, and quickly recognize attack and defense patterns. Doing puzzles on platforms, whatever they are, brings very little except immediate dopamine. It's pleasant to move pieces and see a green light indicating you found the expected solution, but **you don't absorb the positions, you don't really learn to visualize**.
 
-**What we offer here is radical**, in the sense that it attacks the root of the problems: **visualization**. No coordinates, no piece movement, no indication arrows—only the board and your brain. Here you will need to think, learn to read coordinates, anticipate, all in a modern and clean interface. It will be difficult at first, both because of the coordinates and the moves to visualize, but you will quickly see improvements by doing ~20 new puzzles per day. 
+**What we offer here is radical**, in the sense that it attacks the root of the problems: **visualization**. No coordinates, no piece movement, no indication arrows—only the board and your brain. Here you will need to think, learn to read coordinates, anticipate, all in a modern and clean interface. It will be difficult at first, both because of the coordinates and the moves to visualize, but you will quickly see improvements by doing ~20 new puzzles per day.
 
 ***
 
@@ -147,7 +140,7 @@ Thanks to detailed tags (themes and openings), you can create custom decks to wo
 
 **Minimalist Front Display 🎨**
 The interface shows only the essentials: the board and the side to move. This deliberate simplification eliminates visual distractions and forces concentration on pure analysis. Research in cognitive psychology shows that a simplified visual environment improves problem-solving performance. [[3](https://pmc.ncbi.nlm.nih.gov/articles/PMC7077814/)], [[4](https://www.sciencedirect.com/science/article/pii/S0959475224001282)]
-It uses the useful [HTMLTTCHESS](https://github.com/xeyownt/htmlttchess) a javascript program that facilitates rendering of chessboards in HTML without the need of extra images. 
+It uses the useful [HTMLTTCHESS](https://github.com/xeyownt/htmlttchess) a javascript program that facilitates rendering of chessboards in HTML without the need of extra images.
 
 **No Piece Movement: A Founded Pedagogical Choice 🚫**
 The inability to move pieces forces development of "chess vision"—this crucial ability to visualize moves in your head. Studies show that strong players possess visualization capabilities **3-4 times superior** to average players.
