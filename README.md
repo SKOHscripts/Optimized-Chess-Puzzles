@@ -25,6 +25,7 @@ The deck is available in the following languages: **French**, **German**, **Span
 ---
 
 #### Table of contents
+# Table of contents
 
 - [Table of contents](#table-of-contents)
 - [Features](#features)
@@ -43,7 +44,10 @@ The deck is available in the following languages: **French**, **German**, **Span
   - [**3. Exhaustive Coverage Guarantee 📊**](#3-exhaustive-coverage-guarantee-)
   - [**4. Optimized Technical Preprocessing 🔄**](#4-optimized-technical-preprocessing-)
   - [**🎯 Result: Scientifically Optimal Sampling**](#-result-scientifically-optimal-sampling)
-- [🚀 Installation](#-installation)
+- [🚀 Installation (the easy way)](#-installation-the-easy-way)
+  - [**Step 1: Get the apkg file**](#step-1-get-the-apkg-file)
+  - [**Step 2: Import with Anki**](#step-2-import-with-anki)
+- [🚀 Installation (the complete way)](#-installation-the-complete-way)
   - [**Step 1: Install CrowdAnki Plugin**](#step-1-install-crowdanki-plugin)
   - [**Step 2: Download the Optimized Chess Puzzles Pack**](#step-2-download-the-optimized-chess-puzzles-pack)
   - [**Step 3: Import with CrowdAnki**](#step-3-import-with-crowdanki)
@@ -175,8 +179,21 @@ This method produces decks that:
 - **Adapt to level** (increasing complexity by ELO ranges)
 
 ***
+## 🚀 Installation (the easy way)
 
-## 🚀 Installation
+### **Step 1: Get the apkg file**
+
+1. **Visit the shared deck**: [https://ankiweb.net/shared/info/894523279](https://ankiweb.net/shared/info/894523279)
+2. **Download** the apkg file
+
+### **Step 2: Import with Anki**
+
+1. Go to **File** → **Import**
+2. **Select the apkg file**
+3. Choose **"Update existing deck"** when prompted and choose whether you want to import schedules
+4. You are ready! ✅
+
+## 🚀 Installation (the complete way)
 
 ### **Step 1: Install CrowdAnki Plugin**
 
