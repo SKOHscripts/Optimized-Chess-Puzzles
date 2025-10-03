@@ -1,0 +1,96 @@
+{
+  "italian_game": [
+    ["Italian Game (Giuoco Piano)", "1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.d3 d6 5.Nbd2",                    "white", "development mainline"],
+    ["Italian Classical",           "1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.c3 Nf6 5.d3 d6 6.Nbd2",           "white", "center mainline"],
+    ["Fried Liver Attack",          "1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5 d5 5.exd5 Nxd5 6.Nxf7",       "white", "tactical trap"],
+    ["Hungarian Defense",           "1.e4 e5 2.Nf3 Nc6 3.Bc4 Be7",                                   "black", "solid italian alternative"],
+    ["Evans Gambit",                "1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.b4",                              "white", "aggressive gambit"],
+    ["Italian Game - Pianissimo",   "1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.d3 Nf6 5.c3",                     "white", "slow positional"]
+
+  ],
+  "london_system": [
+    ["London System",               "1.d4 d5 2.Bf4 Nf6 3.e3 c5 4.c3 Nc6 5.Nf3",                      "white", "system mainline"],
+    ["London Setup",                "1.d4 Nf6 2.Bf4 e6 3.e3 c5 4.Nf3 Nc6 5.Nbd2",                    "white", "flexible mainline"],
+    ["London Accelerated",          "1.d4 d5 2.Bf4 c5 3.e3 Nc6 4.c3 Nf6 5.Nf3",                      "white", "rapid mainline"],
+    ["London vs King's Indian",     "1.d4 Nf6 2.Bf4 g6 3.e3 Bg7 4.Nf3 O-O 5.Be2 d6 6.h3",            "white", "flexible setup"],
+    ["Barry Attack",                "1.d4 Nf6 2.Nf3 g6 3.Nc3 d5 4.Bf4 Bg7 5.e3 O-O",                 "white", "aggressive system"],
+    ["Jobava London",               "1.d4 d5 2.Nc3 Nf6 3.Bf4 e6 4.e3 Be7 5.Nf3",                     "white", "knight first"]
+  ],
+  "spanish_game": [
+    ["Spanish Game Ruy Lopez",      "1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O",                    "white", "classical mainline"],
+    ["Spanish Morphy",              "1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1",          "white", "retreat mainline"],
+    ["Spanish Closed",              "1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3", "black", "closed setup"],
+    ["Spanish Italian Defense",     "1.e4 e5 2.Nf3 Nc6 3.Bb5 f5 4.Nc3 fxe4 5.Nxe4",                  "black", "aggressive counter"]
+  ],
+  "queens_gambit": [
+    ["Queen's Gambit",              "1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Nf3",                               "white", "classical mainline"],
+    ["QG Orthodox",                 "1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Bg5 Be7 5.e3 O-O",                  "white", "pin mainline"],
+    ["QG Exchange",                 "1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.cxd5 exd5 5.Bg5 Be7",               "white", "simplified center"],
+    ["QG Catalan",                  "1.d4 d5 2.c4 e6 3.g3 Nf6 4.Bg2 dxc4 5.Nf3",                     "white", "fianchetto mainline"],
+    ["Colle System",                "1.d4 d5 2.Nf3 Nf6 3.e3 e6 4.Bd3 c5 5.c3 Nc6",                   "white", "solid system"],
+    ["Torre Attack",                "1.d4 d5 2.Nf3 Nf6 3.Bg5 e6 4.e3 Be7 5.Bd3",                     "white", "pin system"],
+    ["Queen's Gambit Accepted",     "1.d4 d5 2.c4 dxc4 3.Nf3 Nf6 4.e3 e6 5.Bxc4",                    "black", "central counterplay"],
+    ["QGD Tartakower",              "1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Bg5 Be7 5.e3 h6 6.Bh4 b6",          "black", "defensive"],
+    ["Albin Countergambit",         "1.d4 d5 2.c4 e5",                                               "black", "rare sharp"]
+
+  ],
+  "english_opening": [
+    ["English Opening",             "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3",                              "white", "flexible mainline"],
+    ["English Four Knights",        "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Bb4 5.Bg2",                    "white", "development mainline"],
+    ["English Symmetrical",         "1.c4 c5 2.Nc3 Nc6 3.g3 g6 4.Bg2 Bg7",                           "white", "mirror mainline"],
+    ["English Botvinnik",           "1.c4 Nf6 2.Nc3 e6 3.e4 d5 4.e5 d4 5.exf6",                      "white", "central advance"],
+    ["English Mikenas",             "1.c4 Nf6 2.Nc3 e6 3.e4 d5 4.e5 d4 5.exf6",                      "white", "aggressive approach"]
+  ],
+  "scotch_game": [
+    ["Scotch Game",                 "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Bc5 5.Be3",                  "white", "central mainline"],
+    ["Scotch Four Knights",         "1.e4 e5 2.Nf3 Nc6 3.Nc3 Nf6 4.d4 exd4 5.Nd5",                   "white", "symmetrical mainline"],
+    ["Scotch Gambit",               "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Bc4 Bc5 5.c3",                    "white", "gambit play"],
+    ["Scotch Mieses",               "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nf6 5.Nxc6 bxc6 6.e5 Qe7",   "white", "pawn storm"]
+  ],
+  "vienna_game": [
+    ["Vienna Game",                 "1.e4 e5 2.Nc3 Nf6 3.Bc4 Nxe4 4.Qh5",                            "white", "knight mainline"],
+    ["Vienna Gambit",               "1.e4 e5 2.Nc3 Nf6 3.f4 d5 4.fxe5 Nxe4",                         "white", "aggressive gambit"],
+    ["Vienna Falkbeer",             "1.e4 e5 2.Nc3 Nc6 3.g3 Bc5 4.Bg2 d6",                           "white", "fianchetto setup"]
+  ],
+  "kings_gambit": [
+    ["King's Gambit",               "1.e4 e5 2.f4 exf4 3.Nf3 g5 4.h4",                               "white", "romantic mainline"],
+    ["King's Gambit Accepted",      "1.e4 e5 2.f4 exf4 3.Nf3 g5 4.Bc4 g4 5.O-O",                     "white", "development mainline"],
+    ["King's Gambit Bishop",        "1.e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 d6",                         "white", "rapid development"]
+  ],
+  "sicilian": [
+    ["Sicilian Defense",            "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4",                             "black", "counterattack mainline"],
+    ["Sicilian Accelerated Dragon", "1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 g6 5.Nc3 Bg7 6.Be3",         "black", "development mainline"],
+    ["Sicilian Najdorf",            "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be3 e6",       "black", "complex sharp"],
+    ["Sicilian Dragon",             "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6 6.Be3 Bg7 7.f3", "black", "attacking kingside"],
+    ["Sicilian Classical",          "1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 d6",               "black", "solid"]
+  ],
+  "french_defence": [
+    ["French Defense",              "1.e4 e6 2.d4 d5 3.Nc3 Bb4 4.e5 c5",                             "black", "solid mainline counterattack"],
+    ["French Classical",            "1.e4 e6 2.d4 d5 3.Nc3 Nf6 4.Bg5 Be7 5.e5 Nfd7",                 "black", "development mainline counterattack"],
+    ["French Advance",              "1.e4 e6 2.d4 d5 3.e5 c5 4.c3 Nc6 5.Nf3",                        "black", "space fight"]
+  ],
+  "caro_kann": [
+    ["Caro-Kann Defense",           "1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Nd7",                         "black", "solid mainline"],
+    ["Caro-Kann Classical",         "1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Nf6 5.Nxf6+ exf6",            "black", "development mainline"],
+    ["Caro-Kann Main Line",         "1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Bf5 5.Ng3 Bg6",               "black", "bishop mainline"],
+    ["Caro-Kann Advance",           "1.e4 c6 2.d4 d5 3.e5 Bf5 4.Nf3 e6 5.Be2",                       "black", "space defense"],
+    ["Caro-Kann Exchange",          "1.e4 c6 2.d4 d5 3.exd5 cxd5 4.Bd3 Nc6 5.c3",                    "black", "symmetrical structure"],
+    ["Caro-Kann Panov",             "1.e4 c6 2.d4 d5 3.exd5 cxd5 4.c4 Nf6 5.Nc3 e6",                 "black", "central attack"]
+  ],
+  "scandinavian_defence": [
+    ["Scandinavian Defense",        "1.e4 d5 2.exd5 Qxd5 3.Nc3 Qa5 4.d4 Nf6",                        "black", "immediate mainline"],
+    ["Scandinavian Modern",         "1.e4 d5 2.exd5 Nf6 3.d4 Nxd5 4.Nf3 g6 5.Be2",                   "black", "knight mainline"],
+    ["Scandinavian Queen",          "1.e4 d5 2.exd5 Qxd5 3.Nc3 Qa5 4.d4 Nf6 5.Nf3",                  "black", "queen mainline"]
+  ],
+  "indian_defence": [
+    ["King's Indian Defense",       "1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.Nf3 O-O",                  "black", "hypermodern mainline"],
+    ["Queen's Indian Defense",      "1.d4 Nf6 2.c4 e6 3.Nf3 b6 4.g3 Bb7 5.Bg2 Be7",                  "black", "fianchetto mainline"],
+    ["Slav Defense",                "1.d4 d5 2.c4 c6 3.Nf3 Nf6 4.Nc3 dxc4 5.a4",                     "black", "solid mainline"],
+    ["King's Indian Fianchetto",    "1.d4 Nf6 2.c4 g6 3.Nf3 Bg7 4.g3 O-O 5.Bg2 d6 6.O-O",            "black", "positional mainline"],
+    ["Nimzo-Indian Defense",        "1.d4 Nf6 2.c4 e6 3.Nc3 Bb4",                                    "black", "mainline suppressive"]
+  ],
+  "counter": [
+    ["Anti-London c5-e5",           "1.d4 Nf6 2.Nf3 c5 3.Bf4 cxd4 4.Nxd4 e5 5.Nf3 exf4",             "black", "dynamic mainline"],
+    ["Anti-London d6-Bg4",          "1.d4 Nf6 2.Nf3 d6 3.Bf4 Bg4 4.Nbd2 Nbd7 5.e4",                  "black", "classical mainline"]
+  ]
+}
