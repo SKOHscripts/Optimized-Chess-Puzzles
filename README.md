@@ -46,6 +46,7 @@ The deck is available in the following languages: **French**, **German**, **Span
   - [**3. Exhaustive Coverage Guarantee 📊**](#3-exhaustive-coverage-guarantee-)
   - [**4. Optimized Technical Preprocessing 🔄**](#4-optimized-technical-preprocessing-)
   - [**🎯 Result: Scientifically Optimal Sampling**](#-result-scientifically-optimal-sampling)
+- [🏰 Chess Opening Deck Generator & Analyzer](#-chess-opening-deck-generator--analyzer)
 - [🚀 Installation (the easy way)](#-installation-the-easy-way)
   - [**Step 1: Get the apkg file**](#step-1-get-the-apkg-file)
   - [**Step 2: Import with Anki**](#step-2-import-with-anki)
@@ -179,6 +180,107 @@ This method produces decks that:
 - **Prioritize pedagogical quality** (community-validated puzzles)
 - **Avoid redundancies** while guaranteeing learning through repetition
 - **Adapt to level** (increasing complexity by ELO ranges)
+
+## 🏰 Chess Opening Deck Generator & Analyzer
+
+Let’s introduce the **Chess Opening Deck Generator & Analyzer** - the perfect companion to tactical puzzle decks! This powerful new module allows you to **create, analyze, and optimize your personalized opening repertoire** directly with your json repertoire.
+
+### 📊 In-Depth Opening Analysis
+
+The analyzer generates **professional-quality reports** that show you exactly where your opening knowledge stands. Here's a sample of what you'll see:
+[Opening Report made with the opening json file](opening_report.txt)
+
+```shell
+════════════════════════════════════════════════════════════════════════════════
+
+    🏰  CHESS OPENING ANALYSIS & REPORTING SUITE (COARS) - VERSION 2.0
+
+    Advanced chess opening deck analysis with interactive visualization
+    and personalized recommendations
+
+    Analyzed file: chess_openings.csv
+    Analysis date: 2025-10-03 21:11:35
+
+════════════════════════════════════════════════════════════════════════════════
+
+📊 DECK GLOBAL OVERVIEW
+────────────────────────────────────────────────────────────────────────────────
+ • Total positions: 125
+ • Color distribution: White 72 (57.6%) | Black 53 (42.4%)
+
+ • Balance level: [██████████░░░░░░░░░░] 64.8%
+ • Theoretical completeness: [████████░░░░░░░░░░] 80.0%
+ • Opening diversity: [█████████░░░░░░░░░] 90.0%
+ • Theoretical soundness: [██████████████░░░░] 95.2%
+
+♔ WHITE OPENINGS ANALYSIS
+────────────────────────────────────────────────────────────────────────────────
+Metric          Count  Percentage
+──────────────:  ─────:  ─────────:
+Total positions     72     100.0%
+Mainlines           65      90.3%
+Variants             7       9.7%
+Families covered     7
+
+Top Families      Count  Percentage
+────────────────  ─────  ──────────
+🍝 Italian Game     22       30.6%
+👑 Queen's Gambit   18       25.0%
+🌶️ Spanish Game     15       20.8%
+☂️ London System     9       12.5%
+🎩 English Opening   6        8.3%
+
+♚ BLACK DEFENSES ANALYSIS
+────────────────────────────────────────────────────────────────────────────────
+Metric          Count  Percentage
+──────────────:  ─────:  ─────────:
+Total positions     53     100.0%
+Mainlines           48      90.6%
+Variants             5       9.4%
+Families covered     5
+
+Top Families      Count  Percentage
+────────────────  ─────  ──────────
+🐉 Sicilian Defense  21       39.6%
+🍷 French Defence    15       28.3%
+🧘 Indian Defence    10       18.9%
+❄️ Scandinavian       4        7.5%
+🐗 Caro-Kann          3        5.7%
+```
+
+### 🔍 Key Features That Set Us Apart
+
+#### 🌐 Comprehensive Opening Coverage
+- **500+ opening variations** across 15+ major families
+- **Color-balanced training** with separate analysis for white openings and black defenses
+- **Mainline vs. variant ratio** to ensure theoretical soundness
+
+#### 📈 Advanced Metrics & Visualization
+- **Star-based coverage evaluation** for each opening family
+- **Interactive ASCII board previews** of critical positions
+- **Balance meters** showing white/black distribution at a glance
+- **Depth distribution analysis** to identify superficial coverage
+
+#### 💡 Personalized Learning Path
+- **Targeted recommendations** based on your specific gaps
+- **Progression goals** tailored to your current level
+- **Critical position identification** for focused study
+- **Thematic analysis** to strengthen specific aspects of your repertoire
+
+### 🚀 Getting Started with Opening Decks
+
+Creating your personalized opening deck is incredibly simple:
+
+1. **Prepare your opening repertoire** in JSON format (use our comprehensive template)
+2. **Run the generator** with just 3 lines of code:
+```python
+generator = OpeningDeckGenerator()
+generator.add_from_popular_openings(your_openings_data)
+generator.generate_csv('my_openings.csv')
+```
+
+**Ready to master your openings?** The same scientific principles that power the tactical deck now extend to opening preparation! Combine both for **complete chess mastery** from move 1 to checkmate. 🏆♟️
+
 
 ***
 ## 🚀 Installation (the easy way)
