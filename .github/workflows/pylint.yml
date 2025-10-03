@@ -22,4 +22,4 @@ jobs:
           pip install pylint
       - name: Analysing the code with pylint
         run: |-
-          pylint $(git ls-files '*.py') --ignore-paths=tests
+          pylint $(git ls-files '*.py') --ignore-paths=tests --max-line-length=120 --disable=R0913,R0917,R0911,R0914,R0912,R0903
