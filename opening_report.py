@@ -212,7 +212,6 @@ class ChessOpeningAnalyzer:
                 return 'white' if board.turn == chess.WHITE else 'black'
         except (AttributeError, ValueError) as e:
             print(f"Error determining color: {e}")
-            pass
 
         # 4. Last resort: position in deck
 
@@ -261,7 +260,6 @@ class ChessOpeningAnalyzer:
                         return 'sicilian'
         except (AttributeError, ValueError) as e:
             print(f"Error analyzing FEN: {e}")
-            pass
 
         return 'unknown'
 

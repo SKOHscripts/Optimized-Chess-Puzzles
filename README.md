@@ -22,6 +22,9 @@
 - Each 100 ELO range containing **~1200** puzzles
 - **≥98.4%** coverage over all themes available in each 100 ELO range
 - Pedagogical quality for systematic chess improvement.
+- **500+ opening variations** across 13+ major families
+- **Color-balanced training** with separate analysis for white openings and black defenses
+- **Mainline vs. variant ratio** to ensure theoretical soundness
 
 The deck is available in the following languages: **French**, **German**, **Spanish**, **Italian**, **Portuguese**, **Dutch**, **Russian**, **Chinese**, **Japanese**, **Polish**, **Turkish**, and **English**.
 
