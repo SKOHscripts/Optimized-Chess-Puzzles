@@ -32,14 +32,12 @@ Revolutionary chess opening deck analysis module featuring:
 - Reference database comparison
 """
 
+from datetime import datetime
+from collections import Counter, defaultdict
+import random
 import chess
 import chess.svg
-import pandas as pd
 import numpy as np
-import re
-from collections import Counter, defaultdict
-from datetime import datetime
-from IPython.display import SVG, display
 
 class AsciiTable:
     """Helper class for creating perfectly aligned ASCII tables with dynamic column widths"""
@@ -182,7 +180,6 @@ class AsciiTable:
             return "[          ] 0.0%"
 
         white_pct = white / total * 100
-        black_pct = black / total * 100
 
         white_width = int(white_pct * width / 100)
         black_width = width - white_width
@@ -313,7 +310,7 @@ class ChessOpeningAnalyzer:
             self._record_color_data(stats, move, color, family, themes, move_san, depth)
 
             # Analyze move patterns
-            self._analyze_move_patterns(stats, move, move_san, i)
+            self._analyze_move_patterns(stats, move_san, i)
 
         # Calculate quality metrics
         self._calculate_quality_metrics(stats)
@@ -391,9 +388,11 @@ class ChessOpeningAnalyzer:
 
                     if first_move in ['e2e4', 'e7e5']:
                         return 'italian_game' if len(board.move_stack) > 1 else 'unknown'
-                    elif first_move in ['d2d4', 'd7d5']:
+
+                    if first_move in ['d2d4', 'd7d5']:
                         return 'queens_gambit'
-                    elif first_move == 'e2e4' and 'c7c5' in [m.uci() for m in board.legal_moves]:
+
+                    if first_move == 'e2e4' and 'c7c5' in [m.uci() for m in board.legal_moves]:
                         return 'sicilian'
         except:
             pass
@@ -445,7 +444,7 @@ class ChessOpeningAnalyzer:
         if move_san and depth <= 2:
             stats['move_patterns']['first_moves'][move_san] += 1
 
-    def _analyze_move_patterns(self, stats, move, move_san, index):
+    def _analyze_move_patterns(self, stats, move_san, index):
         """Analyze move patterns and sequences"""
 
         if move_san:
@@ -500,26 +499,28 @@ class ChessOpeningAnalyzer:
             # Normalize on 5 levels (1-5)
             stats['quality_metrics']['difficulty'] = min(max(avg_depth / 10, 1), 5) / 5
 
-    def generate_report(self, format='console', include_visuals=True):
+    def generate_report(self, report_format='console', include_visuals=True):
         """
-        Generate report in specified format
+        Generate report in specified report_format
 
         Args:
-            format: 'console', 'html', 'markdown'
+            report_format: 'console', 'html', 'markdown'
             include_visuals: Include ASCII/SVG visualizations
 
         Returns:
             str: Formatted report
         """
 
-        if format == 'console':
+        if report_format == 'console':
             return self._generate_console_report(include_visuals)
-        elif format == 'html':
+
+        if report_format == 'html':
             return self._generate_html_report()
-        elif format == 'markdown':
+
+        if report_format == 'markdown':
             return self._generate_markdown_report()
-        else:
-            raise ValueError(f"Unsupported format: {format}")
+
+        raise ValueError(f"Unsupported report_format: {report_format}")
 
     def _generate_console_report(self, include_visuals):
         """Generate console report with creative ASCII visualizations"""
@@ -643,7 +644,7 @@ class ChessOpeningAnalyzer:
         # Format the families table
         families_data = []
 
-        for i, (family, count) in enumerate(breakdown['families'].most_common(5), 1):
+        for _, (family, count) in enumerate(breakdown['families'].most_common(5), 1):
             emoji = self.OPENING_EMOJIS.get(family, '❓')
             family_name = f"{emoji} {family.replace('_', ' ').title()}"
             pct = count / total * 100
@@ -783,7 +784,6 @@ class ChessOpeningAnalyzer:
 
     def _generate_key_positions_preview(self):
         """Generate preview of key positions with ASCII visualization"""
-        stats = self.stats
         lines = []
 
         # Select most representative positions
@@ -974,7 +974,8 @@ class ChessOpeningAnalyzer:
 
         if completeness < 0.3:
             return "This deck suits beginners learning the basics"
-        elif completeness < 0.6:
+
+        if completeness < 0.6:
             return "Intermediate deck ideal for expanding your opening repertoire"
 
         # Analyze average depth
@@ -982,7 +983,8 @@ class ChessOpeningAnalyzer:
 
         if avg_depth < 4:
             return "Focus on the first 5 moves of each opening"
-        elif avg_depth < 8:
+
+        if avg_depth < 8:
             return "You're starting to explore developments - keep it up!"
 
         # Analyze thematic distribution
@@ -1005,7 +1007,6 @@ class ChessOpeningAnalyzer:
             "Chess is a microcosm of life. What matters is quality, not quantity. - Garry Kasparov",
             "Experience is the name everyone gives to their mistakes. - Oscar Wilde (adapted to chess)"
         ]
-        import random
 
         return random.choice(quotes)
 

@@ -31,14 +31,15 @@ Each CSV line represents a move in the opening sequence, with the FEN
 position before that move and the move in SAN notation to guess.
 """
 
-import chess
-import chess.pgn
-from typing import List, Dict, Tuple
+from typing import List, Dict
 from dataclasses import dataclass
 import re
 import io
-from lichess_optimized_puzzles_datasets import safe_str
 import json
+import chess
+import chess.pgn
+from lichess_optimized_puzzles_datasets import safe_str
+import opening_report
 
 @dataclass
 class OpeningMove:
@@ -331,30 +332,27 @@ class OpeningDeckGenerator:
                 opening_file.write(",".join([v.replace(',', ';') for v in vals]) + "\n")
 
         # Importer le module contenant la nouvelle classe
-        import opening_report
 
         # Créer une instance de l'analyseur
         output_file='opening_report.txt'
         analyzer = opening_report.ChessOpeningAnalyzer(self.moves,self.variants, output_file=output_file)
 
         # Générer le rapport
-        report = analyzer.generate_report(format='console', include_visuals=True)
+        report = analyzer.generate_report(report_format='console', include_visuals=True)
 
         # Afficher le rapport (ou l'enregistrer dans un fichier)
         print(report)
         # Ou pour enregistrer dans un fichier
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(report)
 
 if __name__ == "__main__":
     generator = OpeningDeckGenerator()
 
-    with open('comprehensive_openings_repertoire.json', 'r') as opening_json_file:
+    with open('comprehensive_openings_repertoire.json', 'r', encoding='utf-8') as opening_json_file:
         data_dict1 = json.load(opening_json_file)
 
     generator.add_from_popular_openings(data_dict1)
 
     # Generate the complete deck
     generator.generate_csv('chess_openings.csv')
-
-
