@@ -38,158 +38,7 @@ import random
 import chess
 import chess.svg
 import numpy as np
-
-class AsciiTable:
-    """Helper class for creating perfectly aligned ASCII tables with dynamic column widths"""
-
-    @staticmethod
-    def create(data, headers, alignments=None, padding=1, border_style="none", title=None):
-        """
-        Create a perfectly aligned ASCII table with dynamic column widths
-
-        Args:
-            data: List of rows (each row is a list of cells)
-            headers: List of header names
-            alignments: List of alignments ('<', '>', '^') for each column
-            padding: Number of spaces between columns
-            border_style: "none", "minimal", "full"
-            title: Optional table title
-
-        Returns:
-            str: Formatted table
-        """
-        # Déterminer la largeur maximale de chaque colonne (incluant les en-têtes)
-        all_rows = [headers] + data
-        col_widths = [
-            max(len(str(row[i])) for row in all_rows if i < len(row))
-
-            for i in range(max(len(row) for row in all_rows))
-        ]
-
-        # Appliquer le padding
-        col_widths = [w + padding*2 for w in col_widths]
-
-        # Définir les alignements par défaut (gauche pour le texte, droite pour les nombres)
-
-        if not alignments:
-            alignments = ['<' if i == 0 else '>' for i in range(len(col_widths))]
-
-        # Créer les lignes du tableau
-        lines = []
-
-        # Ajouter un titre si spécifié
-
-        if title:
-            lines.append(f"{title}")
-            lines.append("─" * sum(col_widths + [len(col_widths) - 1]))
-
-        # Ligne de séparation supérieure si nécessaire
-
-        if border_style == "full":
-            top_border = '+' + '+'.join(['─' * w for w in col_widths]) + '+'
-            lines.append(top_border)
-
-        # En-têtes
-        header_line = ''
-
-        if border_style in ["minimal", "full"]:
-            header_line += '|'
-
-        for i, header in enumerate(headers):
-            fmt = f"{{:{alignments[i]}{col_widths[i]}}}"
-            header_line += fmt.format(header)
-
-            if border_style in ["minimal", "full"] or i < len(headers) - 1:
-                header_line += '|'
-        lines.append(header_line)
-
-        # Ligne de séparation après les en-têtes si nécessaire
-
-        if border_style == "full":
-            separator = '+' + '+'.join(['─' * w for w in col_widths]) + '+'
-            lines.append(separator)
-        elif border_style == "minimal":
-            separator = ':' + ':'.join(['-' * w for w in col_widths]) + ':'
-            lines.append(separator)
-
-        # Données
-
-        for row in data:
-            row_line = ''
-
-            if border_style in ["minimal", "full"]:
-                row_line += '|'
-
-            for i, cell in enumerate(row):
-                if i >= len(col_widths):
-                    continue
-                fmt = f"{{:{alignments[i]}{col_widths[i]}}}"
-                row_line += fmt.format(str(cell))
-
-                if border_style in ["minimal", "full"] or i < len(row) - 1:
-                    row_line += '|'
-            lines.append(row_line)
-
-        # Ligne de fermeture si nécessaire
-
-        if border_style == "full":
-            bottom_border = '+' + '+'.join(['─' * w for w in col_widths]) + '+'
-            lines.append(bottom_border)
-
-        return "\n".join(lines)
-
-    @staticmethod
-    def create_meter(value, width=20, symbol_filled='█', symbol_empty='░', show_value=True):
-        """
-        Create a visual progress meter
-
-        Args:
-            value: Value between 0 and 1
-            width: Total width of the meter
-            symbol_filled: Symbol for filled portion
-            symbol_empty: Symbol for empty portion
-            show_value: Whether to show the percentage value
-
-        Returns:
-            str: Formatted meter
-        """
-        level = int(value * width)
-        meter = symbol_filled * level + symbol_empty * (width - level)
-
-        if show_value:
-            return f"[{meter}] {value*100:.0f}%"
-
-        return f"[{meter}]"
-
-    @staticmethod
-    def create_balance_meter(white, black, width=20):
-        """
-        Create a visual balance meter for white/black distribution
-
-        Args:
-            white: Count of white positions
-            black: Count of black positions
-            width: Total width of the meter
-
-        Returns:
-            str: Formatted balance meter
-        """
-        total = white + black
-
-        if total == 0:
-            return "[          ] 0.0%"
-
-        white_pct = white / total * 100
-
-        white_width = int(white_pct * width / 100)
-        black_width = width - white_width
-
-        meter = "♔" * white_width + "♚" * black_width
-        balance = 1.0 - abs(0.5 - white/total) * 2
-        status = "(Perfect)" if balance > 0.9 else ""
-
-        return f"[{meter}] {balance*100:.1f}% {status}"
-
+from ascii_table import AsciiTable
 
 class ChessOpeningAnalyzer:
     """Professional chess opening deck analyzer with advanced visualization"""
@@ -258,10 +107,25 @@ class ChessOpeningAnalyzer:
                 'critical_positions': []
             },
             'color_breakdown': {
-                'white': {'mainlines': 0, 'variants': 0, 'families': Counter(), 'moves': []},
-                'black': {'mainlines': 0, 'variants': 0, 'families': Counter(), 'moves': []}
+                'white': {
+                    'mainlines': 0,
+                    'variants': 0,
+                    'families': Counter(),
+                    'moves': [],
+                    },
+                'black': {
+                    'mainlines': 0,
+                    'variants': 0,
+                    'families': Counter(),
+                    'moves': [],
+                    }
             },
-            'family_breakdown': defaultdict(lambda: {'white': 0, 'black': 0, 'mainlines': 0, 'variants': 0}),
+            'family_breakdown': defaultdict(lambda: {
+                'white': 0,
+                'black': 0,
+                'mainlines': 0,
+                'variants': 0,
+                }),
             'move_patterns': {
                 'first_moves': Counter(),
                 'common_sequences': Counter(),
@@ -346,7 +210,8 @@ class ChessOpeningAnalyzer:
                 board = chess.Board(fen)
 
                 return 'white' if board.turn == chess.WHITE else 'black'
-        except:
+        except (AttributeError, ValueError) as e:
+            print(f"Error determining color: {e}")
             pass
 
         # 4. Last resort: position in deck
@@ -394,7 +259,8 @@ class ChessOpeningAnalyzer:
 
                     if first_move == 'e2e4' and 'c7c5' in [m.uci() for m in board.legal_moves]:
                         return 'sicilian'
-        except:
+        except (AttributeError, ValueError) as e:
+            print(f"Error analyzing FEN: {e}")
             pass
 
         return 'unknown'
@@ -409,7 +275,9 @@ class ChessOpeningAnalyzer:
                 move_number = board.fullmove_number
 
                 return (move_number - 1) * 2 + (1 if board.turn == chess.WHITE else 0)
-        except:
+        except (AttributeError, ValueError) as e:
+            print(f"Error analyzing depth: {e}")
+
             return 0
 
         return 0
@@ -553,10 +421,18 @@ class ChessOpeningAnalyzer:
             f" • Total positions: {total}",
             f" • Color distribution: White {white} ({white/total*100:.1f}%) | Black {black} ({black/total*100:.1f}%)",
             "",
-            " • Balance level: " + AsciiTable.create_meter(stats['quality_metrics']['balance'], 20),
-            " • Theoretical completeness: " + AsciiTable.create_meter(stats['quality_metrics']['completeness'], 20),
-            " • Opening diversity: " + AsciiTable.create_meter(stats['quality_metrics']['diversity'], 20),
-            " • Theoretical soundness: " + AsciiTable.create_meter(stats['quality_metrics']['theoretical_soundness'], 20),
+            " • Balance level: " + AsciiTable.create_meter(
+                stats['quality_metrics']['balance'],
+                20),
+            " • Theoretical completeness: " + AsciiTable.create_meter(
+                stats['quality_metrics']['completeness'],
+                20),
+            " • Opening diversity: " + AsciiTable.create_meter(
+                stats['quality_metrics']['diversity'],
+                20),
+            " • Theoretical soundness: " + AsciiTable.create_meter(
+                stats['quality_metrics']['theoretical_soundness'],
+                20),
             ""
         ])
 
@@ -796,7 +672,9 @@ class ChessOpeningAnalyzer:
                 if fen:
                     board = chess.Board(fen)
                     key_positions.append((board, move))
-            except:
+            except (AttributeError, ValueError) as e:
+                print(f"Error processing move: {e}")
+
                 continue
 
         if not key_positions:
@@ -853,33 +731,49 @@ class ChessOpeningAnalyzer:
         black = stats['metadata']['color_balance']['black']
 
         if white > black * 1.5:
-            recommendations.append("♔ Strengthen your black defenses - you're too focused on white openings")
+            recommendations.append(
+                "♔ Strengthen your black defenses - you're too focused on white openings",
+                )
         elif black > white * 1.5:
-            recommendations.append("♚ Strengthen your white openings - you lack practice as white")
+            recommendations.append(
+                "♚ Strengthen your white openings - you lack practice as white",
+                )
 
         # Mainline-based recommendations
         mainlines = (stats['color_breakdown']['white']['mainlines'] +
                     stats['color_breakdown']['black']['mainlines'])
 
         if mainlines / total < 0.3:
-            recommendations.append("📚 Add more mainlines - your deck lacks theoretical foundations")
+            recommendations.append(
+                "📚 Add more mainlines - your deck lacks theoretical foundations",
+                )
         elif mainlines / total > 0.7:
-            recommendations.append("💡 Add more variants - your deck is too theoretical without practical alternatives")
+            recommendations.append(
+                "💡 Add more variants - your deck is too theoretical without practical alternatives",
+                )
 
         # Diversity-based recommendations
 
         if len(stats['metadata']['family_coverage']) < 5:
-            recommendations.append("🌍 Broaden your repertoire - you're focusing too much on few opening families")
+            recommendations.append(
+                "🌍 Broaden your repertoire - you're focusing too much on few opening families",
+                )
         elif len(stats['metadata']['family_coverage']) > 12:
-            recommendations.append("🎯 Good diversity! Now focus on mastering key families")
+            recommendations.append(
+                "🎯 Good diversity! Now focus on mastering key families",
+                )
 
         # Depth-based recommendations
         avg_depth = sum(k*v for k,v in stats['metadata']['depth_distribution'].items()) / total
 
         if avg_depth < 3:
-            recommendations.append("♟ Develop deeper positions - your deck remains too superficial")
+            recommendations.append(
+                "♟ Develop deeper positions - your deck remains too superficial",
+                )
         elif avg_depth > 10:
-            recommendations.append("🧠 Excellent! Your deck covers well developments beyond the first few moves")
+            recommendations.append(
+                "🧠 Excellent! Your deck covers well developments beyond the first few moves",
+                )
 
         # Personalized recommendation based on first moves
 
@@ -887,24 +781,36 @@ class ChessOpeningAnalyzer:
             top_move = stats['move_patterns']['first_moves'].most_common(1)[0][0]
 
             if top_move in ['e4', 'd4', 'Nf3', 'c4']:
-                recommendations.append(f"🚀 You master {top_move} well - now explore less common responses")
+                recommendations.append(
+                    f"🚀 You master {top_move} well - now explore less common responses",
+                    )
             else:
-                recommendations.append(f"🔍 {top_move} is a good start - ensure you know main responses")
+                recommendations.append(
+                    f"🔍 {top_move} is a good start - ensure you know main responses",
+                    )
 
         # If no specific recommendations
 
         if not recommendations:
-            recommendations.append("✅ Excellent deck! Keep practicing regularly")
+            recommendations.append(
+                "✅ Excellent deck! Keep practicing regularly",
+                )
 
         # Add progression recommendation
         completeness = stats['quality_metrics']['completeness']
 
         if completeness < 0.3:
-            recommendations.append("🎯 Short-term goal: Reach 5 main opening families")
+            recommendations.append(
+                "🎯 Short-term goal: Reach 5 main opening families",
+                )
         elif completeness < 0.6:
-            recommendations.append("🏆 Intermediate goal: Master 8 key opening families")
+            recommendations.append(
+                "🏆 Intermediate goal: Master 8 key opening families",
+                )
         else:
-            recommendations.append("🏅 Advanced goal: Explore specialized variants in your favorite families")
+            recommendations.append(
+                "🏅 Advanced goal: Explore specialized variants in your favorite families",
+                )
 
         # Format recommendations with priorities
         formatted = []

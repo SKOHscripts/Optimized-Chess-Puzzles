@@ -75,9 +75,13 @@ class OpeningDeckGenerator:
         self.puzzle_counter = 1
         self.category_mapping = {}  # Store mapping from opening name to category
 
-    def add_opening_from_pgn(self, name: str, pgn_moves: str, rating: str = "",
-                           popularity: str = "", themes: str = "",
-                           category: str = "") -> None:
+    def add_opening_from_pgn(self,
+                             name: str,
+                             pgn_moves: str,
+                             rating: str = "",
+                             popularity: str = "",
+                             themes: str = "",
+                             category: str = "") -> None:
         """
         Add an opening from PGN notation and generate all moves.
 
@@ -180,13 +184,13 @@ class OpeningDeckGenerator:
 
                 return moves
 
-        except Exception as e:
+        except (ValueError, EOFError) as e:
             print(f"PGN parsing error: {e}")
 
         # Method 2: Fallback - manual parsing
         try:
             return self._manual_pgn_parse(pgn_moves)
-        except Exception as e:
+        except (ValueError, chess.IllegalMoveError) as e:
             print(f"Manual parsing error: {e}")
 
             return []
@@ -335,7 +339,10 @@ class OpeningDeckGenerator:
 
         # Créer une instance de l'analyseur
         output_file='opening_report.txt'
-        analyzer = opening_report.ChessOpeningAnalyzer(self.moves,self.variants, output_file=output_file)
+        analyzer = opening_report.ChessOpeningAnalyzer(
+            self.moves,
+            self.variants,
+            output_file=output_file)
 
         # Générer le rapport
         report = analyzer.generate_report(report_format='console', include_visuals=True)
