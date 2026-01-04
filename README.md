@@ -4,9 +4,7 @@
 ![Lint](https://github.com/SKOHscripts/Optimized-Chess-Puzzles/actions/workflows/pylint.yml/badge.svg)
 ![Tests](https://github.com/SKOHscripts/Optimized-Chess-Puzzles/actions/workflows/tests.yml/badge.svg)
 [![codecov](https://codecov.io/gh/SKOHscripts/Optimized-Chess-Puzzles/branch/main/graph/badge.svg)](https://codecov.io/gh/SKOHscripts/Optimized-Chess-Puzzles)
-<a href="https://html-preview.github.io/?url=https://github.com/SKOHscripts/donate.github.io/blob/main/donate%2Fredirect.html" target="_blank">
-  <img src="https://github.com/SKOHscripts/donate.github.io/blob/main/donate/buymeacoffee.png?raw=true" width="100">
-</a>
+
 
 <img
   align="right"
@@ -27,6 +25,24 @@
 - **Mainline vs. variant ratio** to ensure theoretical soundness
 
 The deck is available in the following languages: **French**, **German**, **Spanish**, **Italian**, **Portuguese**, **Dutch**, **Russian**, **Chinese**, **Japanese**, **Polish**, **Turkish**, and **English**.
+
+---
+
+### 💖 Support This Project
+
+This project is the result of many hours of work, passion, and coffee ☕. If you find it useful, it saves you time, or you simply appreciate the effort, your support would be a tremendous encouragement.
+
+If you'd like to help me continue to maintain and improve this project, please consider making a donation. Every contribution, big or small, is greatly appreciated and allows me to dedicate more time to developing quality tools.
+
+<p align="center">
+  <a href="https://html-preview.github.io/?url=https://github.com/SKOHscripts/donate.github.io/blob/main/donate%2Fredirect.html" target="_blank">
+    <img src="https://github.com/SKOHscripts/donate.github.io/blob/main/donate/buymeacoffee.png?raw=true" alt="Donate Button" width="150">
+  </a>
+  <br>
+  <strong>Click the icon above to donate! 🙏</strong>
+</p>
+
+Thank you from the bottom of my heart for your support! 🙏
 
 ---
 
