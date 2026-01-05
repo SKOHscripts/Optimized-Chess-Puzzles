@@ -122,17 +122,17 @@ This tactical deck has been designed as a **versatile and scientifically optimiz
 
 The only way to use puzzles and transpose them into real games is to learn to calculate, visualize the move tree, and quickly recognize attack and defense patterns. Doing puzzles on platforms, whatever they are, brings very little except immediate dopamine. It's pleasant to move pieces and see a green light indicating you found the expected solution, but **you don't absorb the positions, you don't really learn to visualize**.
 
-**What we offer here is radical**, in the sense that it attacks the root of the problems: **visualization**. No coordinates, no piece movement, no indication arrows—only the board and your brain. Here you will need to think, learn to read coordinates, anticipate, all in a modern and clean interface. It will be difficult at first, both because of the coordinates and the moves to visualize, but you will quickly see improvements by doing ~20 new puzzles per day.
+**What I offer here is radical**, in the sense that it attacks the root of the problems: **visualization**. No coordinates, no piece movement, no indication arrows—only the board and your brain. Here you will need to think, learn to read coordinates, anticipate, all in a modern and clean interface. It will be difficult at first, both because of the coordinates and the moves to visualize, but you will quickly see improvements by doing ~20 new puzzles per day. And by doing I mean really try to visualize and find moves (e.g. "OK, in this position, I think next best moves are Nf7 Rh7+ Kxh7").
 
 ***
 
 ## 🔬 Training Methodologies
 
 ### **1. Woodpecker Method by ELO Range 🔨**
-Each range (~1200 puzzles) allows you to apply the famous Woodpecker method: solve the same set multiple times in accelerated cycles to develop automatic recognition of tactical patterns. This approach transforms conscious thinking into unconscious reflexes, drastically increasing calculation speed in games.
+Each range (~1200 puzzles) allows you to apply the famous Woodpecker method: solve the same set multiple times in accelerated cycles to develop automatic recognition of tactical patterns. This approach transforms conscious thinking into unconscious reflexes, drastically increasing calculation speed in games. [[1](https://forwardchess.com/blog/what-is-the-woodpecker-method/)]
 
 ### **2. Personalized Spaced Repetition 🧠🔄**
-Use Anki's spaced repetition system to optimize learning according to your current level. The carefully selected puzzles guarantee constant progress without excessive frustration. Research shows that spaced repetition improves long-term retention by **200-300%** compared to traditional methods. [[1](https://www.bananote.ai/blog/the-complete-spaced-repetition-schedule-for-long-term-retention-a-science-based-guide-to-never-forgetting-what-you-learn)], [[2](https://pmc.ncbi.nlm.nih.gov/articles/PMC12357012/)]
+Use Anki's spaced repetition system to optimize learning according to your current level. The carefully selected puzzles guarantee constant progress without excessive frustration. Research shows that spaced repetition improves long-term retention by **200-300%** compared to traditional methods. [[2](https://www.bananote.ai/blog/the-complete-spaced-repetition-schedule-for-long-term-retention-a-science-based-guide-to-never-forgetting-what-you-learn)], [[3](https://pmc.ncbi.nlm.nih.gov/articles/PMC12357012/)]
 
 > #### Recommended Tool: Anki 📱💻
 > I strongly recommend using **Anki** for learning these puzzles, as it's specifically designed for spaced repetition and offers optimal scheduling algorithms, especially with the FSRS scheduling algorithm.
@@ -143,7 +143,7 @@ Use Anki's spaced repetition system to optimize learning according to your curre
 > - **Web**: [https://ankiweb.net/](https://ankiweb.net/) for synchronization
 
 ### **3. Targeted Thematic Training 🎨**
-Thanks to detailed tags (themes and openings), you can create custom decks to work specifically on your weaknesses: forks, pins, discovered attacks, or specific defenses like the Sicilian or French. This targeted approach accelerates learning of specific patterns.
+Thanks to detailed tags (themes and openings), you can create custom decks to work specifically on your weaknesses: forks, pins, discovered attacks, or specific defenses like the Sicilian or French. This targeted approach accelerates learning of specific patterns. Some specific filtered decks are ready to use for the example.
 
 ***
 
@@ -152,7 +152,7 @@ Thanks to detailed tags (themes and openings), you can create custom decks to wo
 ### **Clean Interface for Cognitive Optimization**
 
 **Minimalist Front Display 🎨**
-The interface shows only the essentials: the board and the side to move. This deliberate simplification eliminates visual distractions and forces concentration on pure analysis. Research in cognitive psychology shows that a simplified visual environment improves problem-solving performance. [[3](https://pmc.ncbi.nlm.nih.gov/articles/PMC7077814/)], [[4](https://www.sciencedirect.com/science/article/pii/S0959475224001282)]
+The interface shows only the essentials: the board and the side to move. This deliberate simplification eliminates visual distractions and forces concentration on pure analysis. Research in cognitive psychology shows that a simplified visual environment improves problem-solving performance. [[4](https://pmc.ncbi.nlm.nih.gov/articles/PMC7077814/)], [[5](https://www.sciencedirect.com/science/article/pii/S0959475224001282)]
 It uses the useful [HTMLTTCHESS](https://github.com/xeyownt/htmlttchess) a javascript program that facilitates rendering of chessboards in HTML without the need of extra images.
 
 **No Piece Movement: A Founded Pedagogical Choice 🚫**
@@ -165,7 +165,7 @@ Solution, themes, and analysis links appear only after your attempt, respecting 
 
 - **Pattern Recognition & Cognitive Chunks 🧩**: Based on Chase & Simon's (1973) "chunking" theory
 - **Cognitive Load Theory 🧠⚖️**: Interface follows Sweller's principles to maximize mental resources
-- **Skill Transfer 🔄**: Visualization training shows **35-50% transfer rate** to actual game performance [[5](https://aassjournal.com/article-1-1540-en.pdf)], [[6](http://www.diva-portal.org/smash/get/diva2:1971308/FULLTEXT01.pdf)], [[7](https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.02407/full)]
+- **Skill Transfer 🔄**: Visualization training shows **35-50% transfer rate** to actual game performance [[6](https://aassjournal.com/article-1-1540-en.pdf)], [[7](http://www.diva-portal.org/smash/get/diva2:1971308/FULLTEXT01.pdf)], [[8](https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.02407/full)]
 
 ***
 
@@ -209,64 +209,6 @@ Let’s introduce the **Chess Opening Deck Generator & Analyzer** - the perfect 
 The analyzer generates **professional-quality reports** that show you exactly where your opening knowledge stands. Here's a sample of what you'll see:
 [Opening Report made with the opening json file](opening_report.txt)
 
-```shell
-════════════════════════════════════════════════════════════════════════════════
-
-    🏰  CHESS OPENING ANALYSIS & REPORTING SUITE (COARS) - VERSION 2.0
-
-    Advanced chess opening deck analysis with interactive visualization
-    and personalized recommendations
-
-    Analyzed file: chess_openings.csv
-    Analysis date: 2025-10-03 21:11:35
-
-════════════════════════════════════════════════════════════════════════════════
-
-📊 DECK GLOBAL OVERVIEW
-────────────────────────────────────────────────────────────────────────────────
- • Total positions: 125
- • Color distribution: White 72 (57.6%) | Black 53 (42.4%)
-
- • Balance level: [██████████░░░░░░░░░░] 64.8%
- • Theoretical completeness: [████████░░░░░░░░░░] 80.0%
- • Opening diversity: [█████████░░░░░░░░░] 90.0%
- • Theoretical soundness: [██████████████░░░░] 95.2%
-
-♔ WHITE OPENINGS ANALYSIS
-────────────────────────────────────────────────────────────────────────────────
-Metric          Count  Percentage
-──────────────:  ─────:  ─────────:
-Total positions     72     100.0%
-Mainlines           65      90.3%
-Variants             7       9.7%
-Families covered     7
-
-Top Families      Count  Percentage
-────────────────  ─────  ──────────
-🍝 Italian Game     22       30.6%
-👑 Queen's Gambit   18       25.0%
-🌶️ Spanish Game     15       20.8%
-☂️ London System     9       12.5%
-🎩 English Opening   6        8.3%
-
-♚ BLACK DEFENSES ANALYSIS
-────────────────────────────────────────────────────────────────────────────────
-Metric          Count  Percentage
-──────────────:  ─────:  ─────────:
-Total positions     53     100.0%
-Mainlines           48      90.6%
-Variants             5       9.4%
-Families covered     5
-
-Top Families      Count  Percentage
-────────────────  ─────  ──────────
-🐉 Sicilian Defense  21       39.6%
-🍷 French Defence    15       28.3%
-🧘 Indian Defence    10       18.9%
-❄️ Scandinavian       4        7.5%
-🐗 Caro-Kann          3        5.7%
-```
-
 ### 🔍 Key Features That Set Us Apart
 
 #### 🌐 Comprehensive Opening Coverage
@@ -302,7 +244,7 @@ generator.generate_csv('my_openings.csv')
 
 
 ***
-## 🚀 Installation (the easy way)
+## 🚀 Installation (1st method using apkg)
 
 ### **Step 1: Get the apkg file**
 
@@ -316,7 +258,7 @@ generator.generate_csv('my_openings.csv')
 3. Choose **"Update existing deck"** when prompted and choose whether you want to import schedules
 4. You are ready! ✅
 
-## 🚀 Installation (the complete way)
+## 🚀 Installation (2nd method using CrowdAnki)
 
 ### **Step 1: Install CrowdAnki Plugin**
 
@@ -383,13 +325,13 @@ Use Anki's filtering system to focus on specific weaknesses:
 
 ## 🏆 Transform Your Chess Vision
 
-This pack combines the best modern pedagogical practices:
+This deck combines the best modern pedagogical practices:
 - ✅ **Spaced repetition** for memory anchoring
 - ✅ **Forced visualization** to develop intuition
 - ✅ **Thematic diversity** for generalization
 - ✅ **Cognitively optimized interface** for concentration
 
-**Start your journey to tactical mastery today!** 🚀♟️
+**Start your journey to tactical mastery today! I hope you improve, that this deck is useful to you, and that you enjoy playing it.** 🚀♟️
 
 ***
 
