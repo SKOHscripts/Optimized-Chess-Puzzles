@@ -75,6 +75,7 @@ Thank you from the bottom of my heart for your support! 🙏
   - [**Step 3: Import with CrowdAnki**](#step-3-import-with-crowdanki)
   - [**Step 4: Update an Existing Deck (Optional)**](#step-4-update-an-existing-deck-optional)
   - [**🎯 Ready to Train!**](#-ready-to-train)
+- [📱 Mobile & Cross-Platform Support](#-mobile--cross-platform-support)
 - [🎁 Usage & Training Tips](#-usage--training-tips)
   - [**Personal Error Collection 📝**](#personal-error-collection-)
   - [**Thematic Training 🎨**](#thematic-training-)
@@ -302,6 +303,24 @@ The deck is now available in your Anki collection, organized by ELO ranges with 
 - **Diplay theme** used for the card (available themes are *theme-solarized*, *theme-paper-sand* and nothing for default theme)
 
 This project thus transforms a raw database of millions of puzzles into **custom training sets**, optimized for systematic progression and lasting memorization of tactical patterns essential at each level! 🚀♟️
+
+***
+
+## 📱 Mobile & Cross-Platform Support
+
+This deck is designed to work across all platforms supported by Anki.
+
+### **Android**
+The **[AnkiDroid](https://github.com/ankidroid/Anki-Android)** app is free, open-source, and excellent. Simply sync your AnkiWeb account to access it. If you find AnkiDroid useful, consider supporting its development team via [OpenCollective](https://opencollective.com/ankidroid).
+
+### **iOS / iPhone & iPad**
+[![iOS User Guide](https://img.shields.io/badge/iOS_&_iPad-📱_Complete_User_Guide-blue?style=for-the-badge&logo=apple)](README_iOS.md)
+
+The **AnkiMobile** app on the App Store is paid ($29.99). If you wish to use this deck **for free** on iPhone or iPad, we've written a **comprehensive, detailed guide** explaining how to use **AnkiWeb via Safari**.
+
+**Click the badge above** for complete instructions, advantages/limitations, and the step-by-step sync procedure.
+
+**Supporting Anki:** Remember that purchasing [AnkiMobile](https://apps.apple.com/us/app/ankimobile-flashcards/id373493387) directly funds the ongoing development of Anki itself, which benefits all users across all platforms.
 
 ***
 
