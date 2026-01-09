@@ -88,8 +88,8 @@ Thank you from the bottom of my heart for your support! 🙏
   <tr><th scope="col" colspan="2">Solarized theme, dark interface</th></tr>
   <tr><th scope="col">Front</th><th scope="col">Back</th></tr>
   <tr>
-    <td><img src="doc/dark_solarized_front.png"></td>
-    <td><img src="doc/dark_solarized_back.png"></td>
+    <td><img src="doc/dark_solarized_front.jpeg"></td>
+    <td><img src="doc/dark_solarized_back.jpeg"></td>
   </tr>
 </table>
 
@@ -97,8 +97,8 @@ Thank you from the bottom of my heart for your support! 🙏
   <tr><th scope="col" colspan="2">Solarized theme, light interface</th></tr>
   <tr><th scope="col">Front</th><th scope="col">Back</th></tr>
   <tr>
-    <td><img src="doc/light_solarized_front.png"></td>
-    <td><img src="doc/light_solarized_back.png"></td>
+    <td><img src="doc/light_solarized_front.jpeg"></td>
+    <td><img src="doc/light_solarized_back.jpeg"></td>
   </tr>
 </table>
 
@@ -106,8 +106,8 @@ Thank you from the bottom of my heart for your support! 🙏
   <tr><th scope="col" colspan="2">Green and Paper-sand themes</th></tr>
   <tr><th scope="col">Front</th><th scope="col">Front</th></tr>
   <tr>
-    <td><img src="doc/light_green_front.png"></td>
-    <td><img src="doc/light_paper_sand_front.png"></td>
+    <td><img src="doc/light_green_back.jpeg"></td>
+    <td><img src="doc/light_paper_sand_back.jpeg"></td>
   </tr>
 </table>
 
