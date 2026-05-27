@@ -26,6 +26,7 @@
     <a class="btn lichess" href="https://lichess.org/analysis/{{FEN}}">Lichess Analysis</a>
     <a class="btn lichess" href="https://lichess.org/training/{{PuzzleID}}">Lichess Puzzle</a>
     <a class="btn chesscom" href="https://chess.com/analysis?fen={{FEN}}">Chess.com Analysis</a>
+    <button class="btn" id="coords-toggle" type="button">Coords</button>
   </nav>
 
   <div class="puzzle-meta">
@@ -73,8 +74,6 @@
  *
  *==============================================================================
  */
-
-// const customLog = require('./logger');
 
 var XMLNS = 'c:';
 
@@ -780,7 +779,7 @@ function scheduleBoardFit() {
   const run = () => requestAnimationFrame(fitChessBoardToScreen);
 
   // Run multiple times to catch late layout/font reflows
-  //run();
+  run();
   //setTimeout(run, 50);
   //setTimeout(run, 150);
   //setTimeout(run, 400);
@@ -796,6 +795,22 @@ function scheduleBoardFit() {
   }
 }
 
+function setCoordsVisible(show) {
+  document.documentElement.classList.toggle('coords-hidden', !show);
+  var btn = document.getElementById('coords-toggle');
+  if (btn) btn.classList.toggle('coords-on', show);
+}
+
+function initCoordsToggle() {
+  setCoordsVisible(localStorage.getItem('ocp_coords') === 'true');
+  var btn = document.getElementById('coords-toggle');
+  if (btn) btn.addEventListener('click', function() {
+    var next = document.documentElement.classList.contains('coords-hidden');
+    localStorage.setItem('ocp_coords', next);
+    setCoordsVisible(next);
+  });
+}
+
 function onDomReady(fn) {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", fn);
@@ -808,9 +823,10 @@ onDomReady(function() {
   applyFenToBoard();
   parseChess();
   scheduleBoardFit();
+  initCoordsToggle();
 });
 
 window.addEventListener('orientationchange', () => scheduleBoardFit());
-window.addEventListener('resize', () => scheduleBoardFit);
+window.addEventListener('resize', () => scheduleBoardFit());
 
 </script>
