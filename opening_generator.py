@@ -50,17 +50,17 @@ class OpeningMove:
     rating: str
     popularity: str
     themes: str
-    category: str = ""  # New field for JSON category
+    category: str = ""
 
 @dataclass
 class OpeningVariant:
     """Represents an opening variant with position and moves."""
     name: str
     fen: str
-    moves: str  # UCI or SAN notation
+    moves: str
     color: str  # 'white' or 'black' - side to train
-    themes: str = ""  # Tactical/positional themes
-    category: str = ""  # New field for JSON category
+    themes: str = ""
+    category: str = ""
 
 class OpeningDeckGenerator:
     """
@@ -73,7 +73,7 @@ class OpeningDeckGenerator:
         self.moves: List[OpeningMove] = []
         self.variants: List[OpeningVariant] = []
         self.puzzle_counter = 1
-        self.category_mapping = {}  # Store mapping from opening name to category
+        self.category_mapping: Dict[str, str] = {}
 
     def add_opening_from_pgn(self,
                              name: str,
@@ -81,7 +81,8 @@ class OpeningDeckGenerator:
                              rating: str = "",
                              popularity: str = "",
                              themes: str = "",
-                             category: str = "") -> None:
+                             category: str = "",
+                             color: str = "both") -> None:
         """
         Add an opening from PGN notation and generate all moves.
 
@@ -99,40 +100,34 @@ class OpeningDeckGenerator:
             Tactical/positional themes
         category : str
             JSON category name (family)
+        color : str
+            Side to train ('white', 'black', or 'both')
         """
         moves = self._parse_pgn_to_moves(pgn_moves)
 
         if not moves:
             print(f"Warning: No valid moves found for {name}")
-
             return
 
-        # Store category mapping
         self.category_mapping[name] = category
 
-        # Create variant for tracking
         variant = OpeningVariant(
             name=name,
             fen=chess.STARTING_FEN,
             moves=" ".join(moves),
-            color="both",  # Default: all moves
+            color=color,
             themes=themes,
             category=category
         )
-
         self.variants.append(variant)
 
         board = chess.Board()
 
         for move_san in moves:
             try:
-                # Store FEN position BEFORE the move
                 fen_before = board.fen()
-
-                # Verify move is legal
                 move = board.parse_san(move_san)
 
-                # Create entry for this move
                 opening_move = OpeningMove(
                     puzzle_id=f"opening_{self.puzzle_counter:05d} {name}",
                     fen_before=fen_before,
@@ -146,12 +141,10 @@ class OpeningDeckGenerator:
                 self.moves.append(opening_move)
                 self.puzzle_counter += 1
 
-                # Play the move to continue
                 board.push(move)
 
             except (ValueError, chess.IllegalMoveError) as e:
                 print(f"Error with move '{move_san}' in {name}: {e}")
-
                 break
 
     def _parse_pgn_to_moves(self, pgn_moves: str) -> List[str]:
@@ -169,7 +162,6 @@ class OpeningDeckGenerator:
             List of moves in SAN notation
         """
         try:
-            # Method 1: Use chess.pgn to parse correctly
             pgn_string = f"{pgn_moves} *"
             pgn_io = io.StringIO(pgn_string)
             game = chess.pgn.read_game(pgn_io)
@@ -187,12 +179,10 @@ class OpeningDeckGenerator:
         except (ValueError, EOFError) as e:
             print(f"PGN parsing error: {e}")
 
-        # Method 2: Fallback - manual parsing
         try:
             return self._manual_pgn_parse(pgn_moves)
         except (ValueError, chess.IllegalMoveError) as e:
             print(f"Manual parsing error: {e}")
-
             return []
 
     def _manual_pgn_parse(self, pgn_moves: str) -> List[str]:
@@ -209,10 +199,9 @@ class OpeningDeckGenerator:
         List[str]
             List of moves in SAN notation
         """
-        # Clean and separate moves
-        clean_moves = re.sub(r'\d+\.', ' ', pgn_moves)  # Remove move numbers
+        clean_moves = re.sub(r'\d+\.', ' ', pgn_moves)
         clean_moves = clean_moves.replace('...', ' ')
-        clean_moves = re.sub(r'[{}\[\]()]', ' ', clean_moves)  # Remove annotations
+        clean_moves = re.sub(r'[{}\[\]()]', ' ', clean_moves)
 
         tokens = clean_moves.split()
         moves = []
@@ -224,8 +213,6 @@ class OpeningDeckGenerator:
             if not token or token == '*':
                 continue
 
-            # Ignore move numbers, comments, etc.
-
             if token.isdigit() or token.endswith('.'):
                 continue
 
@@ -234,8 +221,6 @@ class OpeningDeckGenerator:
                 moves.append(board.san(move))
                 board.push(move)
             except (ValueError, chess.IllegalMoveError):
-                # Ignore invalid tokens
-
                 continue
 
         return moves
@@ -253,37 +238,18 @@ class OpeningDeckGenerator:
         for category, openings in popular_openings.items():
             for opening_tuple in openings:
                 if len(opening_tuple) >= 4:
-                    name, pgn, color, themes = opening_tuple[:5]
+                    name, pgn, color, themes = opening_tuple[:4]
 
-                    # Use default values for rating and popularity
-                    rating = ""
-                    popularity = ""
-
-                    # Store the color information in the variant for later lookup
-                    moves = self._parse_pgn_to_moves(pgn)
-
-                    if moves:
-                        # Create variant with color and category information
-                        variant = OpeningVariant(
-                            name=name,
-                            fen=chess.STARTING_FEN,
-                            moves=" ".join(moves),
-                            color=color,  # Store the color from input data
-                            themes=themes,
-                            category=category  # Store the JSON category
-                        )
-                        self.variants.append(variant)
-
-                    # Add the opening with enhanced themes that include color and category
                     enhanced_themes = f"{themes} {color}" if themes else f"{color}"
 
                     self.add_opening_from_pgn(
                         name=name,
                         pgn_moves=pgn,
-                        rating=rating,
-                        popularity=popularity,
-                        themes=enhanced_themes,  # Include color and category in themes
-                        category=category  # Pass the category
+                        rating="",
+                        popularity="",
+                        themes=enhanced_themes,
+                        category=category,
+                        color=color,
                     )
 
     def generate_csv(self, output_file: str = "chess_openings.csv") -> None:
@@ -298,24 +264,19 @@ class OpeningDeckGenerator:
 
         if not self.moves:
             print("No moves to write. Check your openings.")
-
             return
 
-        def _opening_prefixed_tokens(text: str):
-            # Split on whitespace and common separators, drop empties, prefix
+        def _opening_prefixed_tokens(text: str) -> str:
             tokens = [t for t in re.split(r'[\s,;|]+', text.strip()) if t]
-
             return " ".join(f"OCP::00_Openings_Defences::{t}" for t in tokens)
 
         with open(output_file, "w", encoding="utf-8") as opening_file:
-            # CSV header
             opening_file.write("PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,DisplayTheme,Tags\n")
 
             for move in self.moves:
                 themes = safe_str(move.themes)
                 category = safe_str(move.category)
 
-                # ONLY tags_str is prefixed per element; original columns unchanged
                 oc_themes = _opening_prefixed_tokens(themes) if themes else ""
                 oc_openings = _opening_prefixed_tokens(category) if category else ""
 
@@ -329,28 +290,20 @@ class OpeningDeckGenerator:
                     safe_str(move.popularity),
                     safe_str(move.themes),
                     safe_str(move.category),
-                    safe_str(""),  # default display theme
+                    safe_str(""),
                     tags_str
                 ]
 
                 opening_file.write(",".join([v.replace(',', ';') for v in vals]) + "\n")
 
-        # Importer le module contenant la nouvelle classe
-
-        # Créer une instance de l'analyseur
-        output_file='opening_report.txt'
+        report_file = 'opening_report.txt'
         analyzer = opening_report.ChessOpeningAnalyzer(
             self.moves,
             self.variants,
-            output_file=output_file)
-
-        # Générer le rapport
+            output_file=report_file)
         report = analyzer.generate_report(report_format='console', include_visuals=True)
-
-        # Afficher le rapport (ou l'enregistrer dans un fichier)
         print(report)
-        # Ou pour enregistrer dans un fichier
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(report_file, 'w', encoding='utf-8') as f:
             f.write(report)
 
 if __name__ == "__main__":
@@ -361,5 +314,4 @@ if __name__ == "__main__":
 
     generator.add_from_popular_openings(data_dict1)
 
-    # Generate the complete deck
     generator.generate_csv('chess_openings.csv')

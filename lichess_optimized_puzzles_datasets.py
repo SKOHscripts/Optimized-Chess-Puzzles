@@ -33,19 +33,25 @@ provide comprehensive coverage of tactical themes and opening patterns.
 """
 
 import os
-from collections import defaultdict
 import re
+import subprocess
+from collections import defaultdict
+from typing import List, Tuple
+
+import chess
 import pandas
 import requests
-import chess
 
-# Constants for database URLs and file names
 PUZZLE_URL = "https://database.lichess.org/lichess_db_puzzle.csv.zst"
 PUZZLE_FILE = "lichess_db_puzzle.csv.zst"
 CSV_FILE = "lichess_db_puzzle.csv"
 
+MIN_PUZZLES_PER_RANGE = 700
+DOWNLOAD_TIMEOUT = 120
+DOWNLOAD_CHUNK_SIZE = 8192
 
-def safe_str(value):
+
+def safe_str(value) -> str:
     """
     Convert a value to string, replacing NaN or None values with empty string.
 
@@ -66,7 +72,7 @@ def safe_str(value):
     return str(value)
 
 
-def adjust_fen_and_moves(fen, moves):
+def adjust_fen_and_moves(fen: str, moves: str) -> Tuple[str, str]:
     """
     Adjust FEN position and move sequence for puzzle presentation.
 
@@ -89,13 +95,10 @@ def adjust_fen_and_moves(fen, moves):
     board = chess.Board(fen)
     moves_list = moves.strip().split()
 
-    # Apply the first move to the FEN to get the real puzzle position
-
     if moves_list:
         first_move = board.parse_uci(moves_list[0])
         board.push(first_move)
         new_fen = board.fen()
-        # Remove the first move from the sequence
         rest_moves = " ".join(moves_list[1:])
     else:
         new_fen = fen
@@ -104,7 +107,7 @@ def adjust_fen_and_moves(fen, moves):
     return new_fen, rest_moves
 
 
-def download_puzzle_db():
+def download_puzzle_db() -> None:
     """
     Download the Lichess puzzle database if not already present.
 
@@ -114,16 +117,16 @@ def download_puzzle_db():
 
     if not os.path.exists(PUZZLE_FILE):
         print("Downloading puzzle database...")
-        request = requests.get(PUZZLE_URL, stream=True, timeout=120)
+        request = requests.get(PUZZLE_URL, stream=True, timeout=DOWNLOAD_TIMEOUT)
         with open(PUZZLE_FILE, "wb") as puzzle_file:
-            for chunk in request.iter_content(chunk_size=8192):
+            for chunk in request.iter_content(chunk_size=DOWNLOAD_CHUNK_SIZE):
                 puzzle_file.write(chunk)
         print("Download completed.")
     else:
         print("File already downloaded.")
 
 
-def decompress_zst():
+def decompress_zst() -> None:
     """
     Decompress the .zst puzzle database file to CSV format.
 
@@ -133,13 +136,13 @@ def decompress_zst():
 
     if not os.path.exists(CSV_FILE):
         print("Decompressing zst file...")
-        os.system(f"zstd -d {PUZZLE_FILE}")
+        subprocess.run(["zstd", "-d", PUZZLE_FILE], check=True)
         print("Decompression completed.")
     else:
         print("CSV file already decompressed.")
 
 
-def uci_seq_to_san(fen, uci_moves):
+def uci_seq_to_san(fen: str, uci_moves: str) -> str:
     """
     Convert UCI move sequence to Standard Algebraic Notation (SAN).
 
@@ -166,7 +169,11 @@ def uci_seq_to_san(fen, uci_moves):
     return " ".join(san_moves)
 
 
-def sample_by_themes(tranche, target_per_theme=30, popularity_threshold=90):
+def sample_by_themes(
+    tranche: pandas.DataFrame,
+    target_per_theme: int = 30,
+    popularity_threshold: int = 90,
+) -> List:
     """
     Sample puzzles using intelligent thematic diversity algorithm.
 
@@ -187,56 +194,39 @@ def sample_by_themes(tranche, target_per_theme=30, popularity_threshold=90):
     list
         List of selected puzzle rows ensuring thematic diversity
     """
-    # Group puzzles by themes for balanced sampling
-    theme_dict = defaultdict(list)
+    theme_dict: defaultdict = defaultdict(list)
 
-    for idx, row in tranche.iterrows():
-
-        # Split multiple themes (space-separated)
-
-        for theme in str(row['Themes']).split():
-            if row['Popularity'] >= popularity_threshold:
+    for _, row in tranche.iterrows():
+        if row['Popularity'] >= popularity_threshold:
+            for theme in str(row['Themes']).split():
                 theme_dict[theme].append(row)
 
-    # Sample up to target_per_theme puzzles for each theme
-    selected_ids = set()
-    selected_rows = []
+    selected_ids: set = set()
+    selected_rows: List = []
 
-    for theme, puzzles in theme_dict.items():
+    for puzzles in theme_dict.values():
         count = 0
-
         for row in puzzles:
             if row['PuzzleId'] not in selected_ids and count < target_per_theme:
                 selected_ids.add(row['PuzzleId'])
                 selected_rows.append(row)
                 count += 1
 
-    # For rare themes, add puzzles with lower popularity to ensure coverage
-    remaining_themes = [theme for theme in theme_dict if len(theme_dict[theme]) == 0]
-
-    for theme in remaining_themes:
-        theme_puzzles = tranche[tranche['Themes'].str.contains(theme, na=False)]
-        count = 0
-
-        for idx, row in theme_puzzles.iterrows():
-            if row['PuzzleId'] not in selected_ids and count < target_per_theme // 2:
-                selected_ids.add(row['PuzzleId'])
-                selected_rows.append(row)
-                count += 1
-
-    # Ensure minimum puzzle count for intensive training
-
-    if len(selected_rows) < 700:
-        needed = 700 - len(selected_rows)
+    if len(selected_rows) < MIN_PUZZLES_PER_RANGE:
+        needed = MIN_PUZZLES_PER_RANGE - len(selected_rows)
         extras = tranche[~tranche['PuzzleId'].isin(selected_ids)].sort_values(
             'Popularity', ascending=False
         ).head(needed)
-        selected_rows.extend([row for idx, row in extras.iterrows()])
+        selected_rows.extend(row for _, row in extras.iterrows())
 
     return selected_rows
 
 
-def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
+def extract_tranches(
+    csv_file: str,
+    target_per_theme: int = 30,
+    popularity_threshold: int = 90,
+) -> None:
     """
     Extract and process puzzle tranches for different ELO ranges.
 
@@ -252,12 +242,10 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
     popularity_threshold : int, default=90
         Minimum popularity threshold for quality filtering
     """
-    # Load the complete puzzle database
     dataframe = pandas.read_csv(csv_file)
     cols = ['PuzzleId', 'FEN', 'Moves', 'Rating', 'Popularity', 'Themes', 'OpeningTags']
     dataframe = dataframe[cols]
 
-    # Process beginner range: ELO < 1000
     first_tranche = dataframe[dataframe['Rating'] < 1000]
     sampled_rows = sample_by_themes(
         first_tranche,
@@ -266,8 +254,6 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
     )
     _write_csv_file(sampled_rows, "puzzles_1000minus.csv")
     report_theme_coverage(sampled_rows, "puzzles_1000minus.csv", first_tranche)
-
-    # Process intermediate ranges: 1000-1800 ELO in 100-point increments
 
     for elo_start in range(1000, 1800, 100):
         elo_end = elo_start + 100
@@ -281,18 +267,17 @@ def extract_tranches(csv_file, target_per_theme=30, popularity_threshold=90):
         _write_csv_file(sampled_rows, out_file)
         report_theme_coverage(sampled_rows, out_file, tranche)
 
-    # Process advanced range: ELO >= 1800
     last_tranche = dataframe[dataframe['Rating'] >= 1800]
     sampled_rows = sample_by_themes(
         last_tranche,
-        target_per_theme=30,
+        target_per_theme=target_per_theme,
         popularity_threshold=popularity_threshold
     )
     _write_csv_file(sampled_rows, "puzzles_1800plus.csv")
     report_theme_coverage(sampled_rows, "puzzles_1800plus.csv", last_tranche)
 
 
-def _write_csv_file(sampled_rows, filename):
+def _write_csv_file(sampled_rows: List, filename) -> None:
     """
     Write selected puzzle rows to CSV file with proper formatting.
     Parameters
@@ -302,16 +287,14 @@ def _write_csv_file(sampled_rows, filename):
     filename : str
         Output CSV filename
     """
-    def _ocp_prefixed_tokens(text: str):
-        # Split on whitespace and common separators, drop empties, prefix with "OCP::"
+    def _ocp_prefixed_tokens(text: str) -> str:
         tokens = [t for t in re.split(r'[\s,;|]+', text.strip()) if t]
-
         return " ".join(f"OCP::{t}" for t in tokens)
 
     with open(filename, "w", encoding="utf-8") as puzzle_file:
         puzzle_file.write(
-            "PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,DisplayTheme,Tags\n",
-            )
+            "PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,DisplayTheme,Tags\n"
+        )
 
         for row in sampled_rows:
             adj_fen, adj_moves = adjust_fen_and_moves(row['FEN'], row['Moves'])
@@ -320,7 +303,6 @@ def _write_csv_file(sampled_rows, filename):
             themes = safe_str(row['Themes'])
             opening = safe_str(row['OpeningTags'])
 
-            # ONLY tags_str is prefixed with "OCP::" per element; original columns unchanged
             oc_themes = _ocp_prefixed_tokens(themes) if themes else ""
             oc_openings = _ocp_prefixed_tokens(opening) if opening else ""
             tags_str = " ".join(x for x in [oc_themes, oc_openings] if x).strip()
@@ -333,13 +315,17 @@ def _write_csv_file(sampled_rows, filename):
                 safe_str(row['Popularity']),
                 themes,
                 opening,
-                safe_str("theme-solarized"),  # default display theme
+                safe_str("theme-solarized"),
                 tags_str
             ]
             puzzle_file.write(",".join([v.replace(',', ';') for v in vals]) + "\n")
 
 
-def report_theme_coverage(sampled_rows, out_file, tranche):
+def report_theme_coverage(
+    sampled_rows: List,
+    out_file: str,
+    tranche: pandas.DataFrame,
+) -> None:
     """
     Generate and display theme coverage statistics for the puzzle selection.
 
@@ -355,8 +341,7 @@ def report_theme_coverage(sampled_rows, out_file, tranche):
     tranche : pandas.DataFrame
         Original tranche data for comparison
     """
-    # Analyze themes present in the final selection
-    selected_themes = set()
+    selected_themes: set = set()
     theme_freq = {}
 
     for row in sampled_rows:
@@ -364,22 +349,19 @@ def report_theme_coverage(sampled_rows, out_file, tranche):
             selected_themes.add(theme)
             theme_freq[theme] = theme_freq.get(theme, 0) + 1
 
-    # Analyze all themes available in the tranche (no threshold filtering)
-    tranche_themes = set()
+    tranche_themes = {
+        theme
+        for themes_str in (tranche['Themes'].fillna('').astype(str) if 'Themes' in tranche.columns else [])
+        for theme in themes_str.split()
+        if theme
+    }
 
-    for _, row in tranche.iterrows():
-        for theme in str(row['Themes']).split():
-            tranche_themes.add(theme)
-
-    # Calculate coverage percentage
     percentage_coverage = len(selected_themes) / max(len(tranche_themes), 1) * 100
 
-    # Sort themes by frequency for reporting
     sorted_freq = sorted(theme_freq.items(), key=lambda x: -x[1])
-    first_themes = sorted_freq[:5]  # Most represented themes
-    last_themes = sorted_freq[-5:] if len(sorted_freq) >= 5 else sorted_freq  # Least represented
+    first_themes = sorted_freq[:5]
+    last_themes = sorted_freq[-5:] if len(sorted_freq) >= 5 else sorted_freq
 
-    # Display coverage report
     print(f"\n📊 Theme coverage for {out_file}:")
     print(f"- Selected puzzles: {len(sampled_rows)}")
     print(f"- Unique themes covered: {len(selected_themes)}")
@@ -395,7 +377,7 @@ def report_theme_coverage(sampled_rows, out_file, tranche):
     print("—" * 35)
 
 
-def main():
+def main() -> None:
     """
     Main execution function.
 
@@ -403,12 +385,8 @@ def main():
     thematic sampling, and generates optimized puzzle sets for different
     ELO ranges suitable for Woodpecker method and spaced repetition training.
     """
-    # Download and prepare the puzzle database
     download_puzzle_db()
     decompress_zst()
-
-    # Process and extract puzzle tranches with optimized parameters
-    # Adjust target_per_theme for more/fewer puzzles per theme
     extract_tranches(CSV_FILE, target_per_theme=20, popularity_threshold=90)
 
 

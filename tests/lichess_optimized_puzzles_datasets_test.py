@@ -3,15 +3,15 @@ Unit tests for the Optimized Chess Puzzles processing script.
 """
 
 import os
-import pandas
-import pytest
-import chess
+import subprocess
 import tempfile
 import builtins
-import subprocess
 import sys
-
 from collections import defaultdict
+
+import chess
+import pandas
+import pytest
 
 import lichess_optimized_puzzles_datasets
 
@@ -240,7 +240,7 @@ def test_download_puzzle_db_skips_when_exists(monkeypatch):
 def test_decompress_zst_runs(monkeypatch):
     """Test decompress when CSV is absent, then present."""
     monkeypatch.setattr(os.path, "exists", lambda f: False)
-    monkeypatch.setattr(os, "system", lambda x: 0)
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: None)
     lichess_optimized_puzzles_datasets.decompress_zst()
     monkeypatch.setattr(os.path, "exists", lambda f: True)
     lichess_optimized_puzzles_datasets.decompress_zst()

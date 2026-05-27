@@ -1,27 +1,36 @@
-name: Run tests and coverage
+name: Tests
 
 on:
   push:
-    branches: [main, master]
+    branches: ["**"]
   pull_request:
     branches: [main, master]
 
 jobs:
   test:
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest pytest-cov python-chess pandas requests
-      - name: Run pytest and generate coverage
-        run: python -m pytest tests/ --cov lichess_optimized_puzzles_datasets --cov-report=xml
-      - name: Upload coverage reports to Codecov
+        run: pip install -r requirements.txt pytest pytest-cov
+
+      - name: Run tests with coverage
+        run: pytest tests/ --cov=lichess_optimized_puzzles_datasets --cov-report=xml --cov-report=term-missing -v
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
