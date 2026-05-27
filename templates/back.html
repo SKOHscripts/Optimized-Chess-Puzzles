@@ -692,24 +692,6 @@ function rotateFen180(fenPieces) {
     .join('/');
 }
 
-// i18n: detected once at module scope so all functions share lang/dict
-const lang = (navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
-const labels = {
-  fr: { white: "Trait aux blancs",  black: "Trait aux noirs",   coords: "Coords"   },
-  de: { white: "Weiß am Zug",       black: "Schwarz am Zug",    coords: "Koord."   },
-  es: { white: "Juegan blancas",    black: "Juegan negras",     coords: "Coord."   },
-  it: { white: "Il bianco muove",   black: "Il nero muove",     coords: "Coord."   },
-  pt: { white: "Brancas jogam",     black: "Pretas jogam",      coords: "Coord."   },
-  nl: { white: "Wit aan zet",       black: "Zwart aan zet",     coords: "Koord."   },
-  ru: { white: "Ход белых",         black: "Ход чёрных",        coords: "Коорд."   },
-  zh: { white: "白方走",            black: "黑方走",             coords: "坐标"     },
-  ja: { white: "白番",              black: "黒番",               coords: "座標"     },
-  pl: { white: "Ruch białych",      black: "Ruch czarnych",     coords: "Koord."   },
-  tr: { white: "Beyazlar oynar",    black: "Siyahlar oynar",    coords: "Koord."   },
-  en: { white: "White to move",     black: "Black to move",     coords: "Coords"   }
-};
-const dict = labels[lang] || labels.en;
-
 function applyFenToBoard() {
   // 1) Read and normalize FEN (only need first 2 fields: placement + side)
   const raw = ('{{FEN}}' || '').trim();
@@ -718,15 +700,40 @@ function applyFenToBoard() {
   // 2) Determine side to move (strict on first char, case-insensitive)
   const side = sideRaw.toLowerCase().startsWith('w') ? 'w' : 'b';
 
-  // 3) Orient the piece-placement for HTMLTTChess
+  // 3) Localized labels — kept inside the function so const declarations stay
+  //    function-scoped and never conflict when both card faces share the same
+  //    JS context (Anki reuses the WebView; module-level const would throw
+  //    "already declared" on the second template script).
+  const lang = ((navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
+  const labels = {
+    fr: { white: "Trait aux blancs",  black: "Trait aux noirs",   coords: "Coord."   },
+    de: { white: "Weiß am Zug",       black: "Schwarz am Zug",    coords: "Koord."   },
+    es: { white: "Juegan blancas",    black: "Juegan negras",     coords: "Coord."   },
+    it: { white: "Il bianco muove",   black: "Il nero muove",     coords: "Coord."   },
+    pt: { white: "Brancas jogam",     black: "Pretas jogam",      coords: "Coord."   },
+    nl: { white: "Wit aan zet",       black: "Zwart aan zet",     coords: "Koord."   },
+    ru: { white: "Ход белых",         black: "Ход чёрных",        coords: "Коорд."   },
+    zh: { white: "白方走",            black: "黑方走",             coords: "坐标"     },
+    ja: { white: "白番",              black: "黒番",               coords: "座標"     },
+    pl: { white: "Ruch białych",      black: "Ruch czarnych",     coords: "Koord."   },
+    tr: { white: "Beyazlar oynar",    black: "Siyahlar oynar",    coords: "Koord."   },
+    en: { white: "White to move",     black: "Black to move",     coords: "Coords"   }
+  };
+  const dict = labels[lang] || labels.en;
+
+  // 4) Orient the piece-placement for HTMLTTChess
   //    Pass only the placement (field #1) to <c:chess>; rotate 180° when Black to move.
   const oriented = side === 'w' ? placement : rotateFen180(placement);
 
-  // 4) Minimal DOM updates (textContent avoids accidental HTML parsing)
+  // 5) Minimal DOM updates (textContent avoids accidental HTML parsing)
   const fig = document.getElementById('fen_fig');
   const toMove = document.getElementById('to_move');
   if (fig) fig.textContent = oriented;
   if (toMove) toMove.textContent = side === 'w' ? dict.white : dict.black;
+
+  // 6) coords button label (shared from same dict, avoids a second lang lookup)
+  const coordsBtn = document.getElementById('coords-toggle');
+  if (coordsBtn) coordsBtn.textContent = dict.coords;
 }
 
 /* ----- Fix font-size bug -------------------------------------------------------- */
@@ -803,9 +810,8 @@ function setCoordsVisible(show) {
 }
 
 function initCoordsToggle() {
-  var btn = document.getElementById('coords-toggle');
-  if (btn) btn.textContent = dict.coords;
   setCoordsVisible(localStorage.getItem('ocp_coords') === 'true');
+  var btn = document.getElementById('coords-toggle');
   if (btn) btn.addEventListener('click', function() {
     var next = document.documentElement.classList.contains('coords-hidden');
     localStorage.setItem('ocp_coords', next);
