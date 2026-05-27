@@ -1,0 +1,57 @@
+name: Build Anki deck
+
+on:
+  push:
+    branches: [main, master]
+    tags:
+      - "v*"
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      real_build:
+        description: "Build real deck from CSV files (requires puzzles_*.csv in repo)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements-build.txt
+
+      - name: Build sample deck (CI)
+        if: github.event.inputs.real_build != 'true' && !startsWith(github.ref, 'refs/tags/')
+        run: python build_apkg.py --sample --output "♟️_Optimized_Chess_Puzzles_sample.apkg"
+
+      - name: Build real deck (manual trigger or tag)
+        if: github.event.inputs.real_build == 'true' || startsWith(github.ref, 'refs/tags/')
+        run: python build_apkg.py --output "♟️_Optimized_Chess_Puzzles.apkg"
+
+      - name: Upload .apkg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimized-chess-puzzles-apkg
+          path: "*.apkg"
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.apkg"
+          generate_release_notes: true
+          fail_on_unmatched_files: true

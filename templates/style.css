@@ -1,0 +1,315 @@
+/* ========== BASIC CONFIGURATION ========== */
+@font-face { 
+  font-family: 'Chess Merida Unicode'; 
+  src: url('_chess_merida_unicode.ttf'); 
+}
+
+:root {
+  /* Thème : Solarized Vert (style sépia-vert) */
+  --sq-light: #E8EDD5; /* clair sépia-vert, comme solarized */
+  --sq-dark:  #5E7556; /* vert-olive grisé, contraste solarized */
+  --coord:    #6B7D63; /* coordonnées vert-gris, ton solarized */
+  --piece-w:  #F6FDE3; /* pièces blanches sépia-vert clair */
+  --piece-b:  #0A3629; /* pièces noires vert sarcelle profond */
+  --board-radius: 16px;
+  --board-stroke: rgba(0,0,0,.40);
+  --board-shadow: 0 16px 26px rgba(0,0,0,.18), 0 4px 10px rgba(0,0,0,.12);
+}
+
+/* ========== STRUCTURE ========== */
+.card {
+  margin: 1;
+  color: #111;
+  font-size: clamp(18px, 2.2vw, 48px);
+  text-align: center;
+}
+
+.deck-title {
+  text-align: left;
+  margin-bottom: 0.25em;
+  color: Gray;
+  font-size: 8px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Robust centering container */
+figure {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: auto;
+}
+
+/* ========== STYLES HTMLTTCHESS BASE ========== */
+table.bwchess, table.chess {
+  font-style: normal !important;
+  font-variant: normal !important;
+  font-weight: normal !important;
+  font-size: 1em;
+  line-height: 1em !important;
+  font-family: "Chess Merida Unicode" !important;
+  border: none !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  color: black;
+  letter-spacing: normal !important;
+  text-align: left !important;
+  text-indent: 0 !important;
+  text-transform: none !important;
+  white-space: normal !important;
+  word-spacing: normal !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+table.bwchess td, table.chess td {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+table.bwchess div.nowrap {
+  height: 1px;
+  overflow: hidden;
+}
+
+table.chess td { width: 1em; }
+
+/* Make sure the generated board is not floated left (HTMLTTChess legacy) */
+table.chess div.board,
+table.bwchess div.board {
+  float: none !important;
+}
+
+/* Ensure the chess tag behaves like a block that can be centered */
+c\:chess, c:chess {
+  display: block;
+  width: 100%;
+}
+
+table.chess div.sq {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+}
+
+table.chess div.pcbg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+table.chess div.pcfg {
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 2;
+}
+
+/* ========== MODERN PERSONALIZED CHESSBOARD ========== */
+table.chess {
+  display: inline-block;
+  margin-inline: auto;
+  background: transparent !important;
+  max-width: 100%;
+  font-size: clamp(20px, 12.5vmin, 56px);
+  overflow: visible;
+  
+  /* Prevents the browser from applying system zoom to the board */
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
+  /* Forces width to never exceed parent container */
+  width: auto; 
+}
+
+table.chess td.board {
+  display: grid;
+  place-items: center;
+  padding: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+table.chess td.board > .board {
+  position: relative;
+  float: none !important;
+  margin: 0 !important;
+  border-radius: var(--board-radius);
+  overflow: hidden;
+  box-shadow: var(--board-shadow), inset 0 0 0 1px var(--board-stroke);
+}
+
+table.chess div.sq {
+  background-color: var(--sq-light);
+  color: var(--sq-dark);
+}
+
+table.chess div.pcbg { color: var(--piece-w); }
+table.chess div.pcfg { color: var(--piece-b); }
+
+table.chess td.cols, 
+table.chess td.rows {
+  display: none !important;
+}
+
+/* ========== COLOR THEMES ========== */
+.theme-solarized {
+  --sq-light: #EEE8D5;
+  --sq-dark: #586E75;
+  --coord: #657B83;
+  --piece-w: #FDF6E3;
+  --piece-b: #073642;
+}
+
+.theme-paper-sand {
+  --sq-light: #EDEBD7;
+  --sq-dark: #B8B2A3;
+  --coord: #7A7D7E;
+  --piece-w: #FCFCF8;
+  --piece-b: #2B2B2B;
+  --board-radius: 16px;
+  --board-stroke: rgba(0,0,0,.40);
+  --board-shadow: 0 16px 26px rgba(0,0,0,.18), 0 4px 10px rgba(0,0,0,.12);
+}
+
+.theme-paper-sand table.chess div.pcbg {
+  color: color-mix(in oklab, var(--sq-light) 65%, #FCFCF8);
+}
+
+.theme-paper-sand table.chess div.pcfg {
+  color: color-mix(in oklab, var(--sq-dark) 40%, #2B2B2B);
+}
+
+/* ========== USER INTERFACE ========== */
+/* Barre d'actions (groupe de boutons) */
+.puzzle-actions {
+  display: inline-flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0 6px 0;
+}
+
+/* Boutons de base - utilise uniquement les variables du thème */
+.btn {
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font: 600 13px/1.1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  padding: 10px 14px;
+  border-radius: 9999px;
+  transition: all .12s ease;
+  
+  /* Base sur le thème */
+  border: 1px solid var(--sq-dark);
+  color: var(--piece-b);
+  background: var(--sq-light);
+}
+
+/* État hover - assombrit légèrement */
+.btn:hover {
+  background: color-mix(in srgb, var(--sq-light), var(--sq-dark) 10%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+
+/* État actif - plus sombre */
+.btn:active {
+  background: color-mix(in srgb, var(--sq-light), var(--sq-dark) 20%);
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+/* Bouton Lichess - style distinct */
+.btn.lichess {
+  color: var(--sq-light);
+  background: color-mix(in srgb, var(--sq-dark), black 40%);
+  border-color: transparent;
+}
+
+.btn.lichess:hover {
+  background: #333333;
+  border-color: #333333;
+}
+
+.btn.lichess:active {
+  background: #000000;
+}
+
+/* Bouton Chess.com - style distinct */
+.btn.chesscom {
+  color: var(--sq-light);
+  background: color-mix(in srgb, var(--sq-dark), #7FA650 40%); /*chesscom green 7fa650*/
+  border-color: transparent;
+}
+
+.btn.chesscom:hover {
+  background: #8FB863;
+  border-color: #8FB863;
+}
+
+.btn.chesscom:active {
+  background: #6E8F40;
+}
+
+/* Focus accessible */
+.btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--sq-dark), var(--piece-b) 40%);
+  outline-offset: 2px;
+}
+
+/* Réduction des animations pour accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
+
+/* Bloc méta (conteneur facultatif) */
+.puzzle-meta {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin: 6px 0 10px 0;
+}
+
+/* Badge puzzle-id (pastille monospace) */
+.puzzle-id, .clean-pill {
+  font: 500 12px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--piece-b);
+  background: var(--sq-light);
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 9px;
+  padding: 4px 8px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Badge move (pastille monospace bold) */
+.clean-pill-bold {
+  font: 500 12px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: bold;
+  color: var(--piece-w);
+  background: var(--sq-dark);
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 9px;
+  padding: 4px 8px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Focus visible sur éléments focusables (si le badge devient focusable) */
+.puzzle-id:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+  border-color: rgba(59,130,246,.55);
+}

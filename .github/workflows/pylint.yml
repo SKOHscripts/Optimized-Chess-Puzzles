@@ -1,25 +1,52 @@
-name: Lint
-on: [push]
+name: Code quality
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main, master]
 
 jobs:
-  build:
+  lint:
+    name: Pylint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements.txt
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pylint
-      - name: Analysing the code with pylint
-        run: |-
-          pylint $(git ls-files '*.py') --ignore-paths=tests --max-line-length=120 --disable=R0913,R0917,R0911,R0914,R0912,R0903
+          pip install -r requirements-build.txt pylint
+
+      - name: Run pylint
+        run: |
+          pylint $(git ls-files '*.py' | grep -v '^tests/') \
+            --max-line-length=120 \
+            --max-args=8 \
+            --max-positional-arguments=8 \
+            --max-locals=20 \
+            --max-branches=15 \
+            --disable=R0903
+
+  typecheck:
+    name: Mypy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt mypy pandas-stubs types-requests
+
+      - name: Run mypy
+        run: mypy lichess_optimized_puzzles_datasets.py opening_generator.py --ignore-missing-imports

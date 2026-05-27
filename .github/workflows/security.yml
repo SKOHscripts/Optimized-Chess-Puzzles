@@ -1,0 +1,30 @@
+name: Security
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  bandit:
+    name: Bandit security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install bandit
+        run: pip install bandit
+
+      - name: Scan for security issues
+        run: |
+          bandit \
+            lichess_optimized_puzzles_datasets.py \
+            opening_generator.py \
+            opening_report.py \
+            ascii_table.py \
+            -ll -v

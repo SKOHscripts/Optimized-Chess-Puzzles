@@ -1,0 +1,2 @@
+-r requirements.txt
+genanki==0.13.1

@@ -1,3 +1,3 @@
 pandas
 requests
-chess
+chess==1.10.0

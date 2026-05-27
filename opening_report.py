@@ -217,7 +217,7 @@ class ChessOpeningAnalyzer:
 
         return 'white' if (getattr(move, 'move_number', 0) % 2 == 1) else 'black'
 
-    def _determine_family(self, move, puzzle_id, themes, category, category_lookup):
+    def _determine_family(self, move, puzzle_id, themes, category, category_lookup):  # pylint: disable=too-many-return-statements
         """Determine opening family with intelligent fallbacks"""
         # 1. Use category if available
 
@@ -718,7 +718,7 @@ class ChessOpeningAnalyzer:
 
         return "\n".join(lines)
 
-    def _generate_personalized_recommendations(self):
+    def _generate_personalized_recommendations(self):  # pylint: disable=too-many-branches
         """Generate personalized recommendations based on analysis"""
         stats = self.stats
         total = stats['metadata']['total_moves']
