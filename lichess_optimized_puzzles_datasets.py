@@ -293,7 +293,7 @@ def _write_csv_file(sampled_rows: List, filename) -> None:
 
     with open(filename, "w", encoding="utf-8") as puzzle_file:
         puzzle_file.write(
-            "PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,DisplayTheme,Tags\n"
+            "PuzzleID,FEN,Moves,Rating,Popularity,Themes,Opening,Display Theme,Tags\n"
         )
 
         for row in sampled_rows:

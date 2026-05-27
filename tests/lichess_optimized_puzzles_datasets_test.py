@@ -190,14 +190,14 @@ def test_csv_writing_and_tags(tmp_path, sample_puzzles):
         lichess_optimized_puzzles_datasets.safe_str(row['Rating']), lichess_optimized_puzzles_datasets.safe_str(row['Popularity']),
         lichess_optimized_puzzles_datasets.safe_str(row['Themes']), lichess_optimized_puzzles_datasets.safe_str(row['OpeningTags']), tags_str
     ]
-    header = "PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,Tags\n"
+    header = "PuzzleID,FEN,Moves,Rating,Popularity,Themes,Opening,Tags\n"
     with open(out_file, 'w', encoding='utf8') as f:
         f.write(header)
         f.write(",".join([v.replace(',', ';') for v in vals]) + "\n")
     # Now re-read the file and check
     with open(out_file, 'r', encoding='utf8') as f:
         lines = f.readlines()
-        assert lines[0].startswith("PuzzleId")
+        assert lines[0].startswith("PuzzleID")
         assert tags_str in lines[1]
 
 
@@ -253,7 +253,7 @@ def test_write_csv_and_read(tmp_path, sample_puzzles):
     # Read back and check
     with open(filename, 'r', encoding='utf8') as f:
         lines = f.readlines()
-        assert lines[0].startswith("PuzzleId") and len(lines) == 5  # header + 4
+        assert lines[0].startswith("PuzzleID") and len(lines) == 5  # header + 4
 
 
 def test_report_theme_coverage_empty(capsys):

@@ -271,7 +271,7 @@ class OpeningDeckGenerator:
             return " ".join(f"OCP::00_Openings_Defences::{t}" for t in tokens)
 
         with open(output_file, "w", encoding="utf-8") as opening_file:
-            opening_file.write("PuzzleId,FEN,Moves_SAN,Rating,Popularity,Themes,OpeningTags,DisplayTheme,Tags\n")
+            opening_file.write("PuzzleID,FEN,Moves,Rating,Popularity,Themes,Opening,Display Theme,Tags\n")
 
             for move in self.moves:
                 themes = safe_str(move.themes)
