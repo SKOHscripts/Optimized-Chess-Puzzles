@@ -21,12 +21,12 @@
 
 <script type="text/javascript">
 var XMLNS='c:',ATTR_BORDER='border',VALUE_BORDER_SOLID='solid',VALUE_BORDER_DOUBLE='double',VALUE_BORDER_SQUARE='square',VALUE_BORDER_ROUND='round',VALUE_BORDER_PAD='pad',ATTR_MODE='mode',VALUE_MODE_COLOR='color',VALUE_MODE_BW='bw',ATTR_STYLE='cstyle',ATTR_CLASS='cclass',VALUE_CLASS_BW_TABLE='bwchess',VALUE_CLASS_COLOR_TABLE='chess',VALUE_CLASS_BW_SPAN_HL='bwhl',VALUE_CLASS_COLOR_SPAN_HL='hl';
-var MFB=' ';
+var MFB=' ';
 var FEN='KQRBNPkqrbnp.+x';
 var MERIDA_LIGHT='♔♕♖♗♘♙♚♛♜♝♞♟'+MFB+'•✕';
-var MERIDA_DARK='';
-var MERIDA_PIECE_BG=''+MFB+MFB+MFB;
-var BOARD_SQUARE_ROW=MFB+''+MFB+''+MFB+''+MFB+''+MFB;
+var MERIDA_DARK='';
+var MERIDA_PIECE_BG=''+MFB+MFB+MFB;
+var BOARD_SQUARE_ROW=MFB+''+MFB+''+MFB+''+MFB+''+MFB;
 var MERIDA_COORD_COLS='abcdefgh';
 var MERIDA_COORD_ROWS='8<br/>7<br/>6<br/>5<br/>4<br/>3<br/>2<br/>1<br/>';
 var MERIDA_FRAME_BLANK=MFB;
@@ -34,26 +34,26 @@ var MERIDA_FRAME_PADDING=MFB+MFB+MFB+MFB+MFB+MFB+MFB+MFB+MFB+MFB;
 var MERIDA_FRAME_COL_PADDING=MFB+MFB+MFB+MFB+MFB+MFB+MFB+MFB+MFB+MFB;
 var MERIDA_FRAME_ROW_PADDING=MFB+'<br/>'+MFB+'<br/>'+MFB+'<br/>'+MFB+'<br/>'+MFB+'<br/>'+MFB+'<br/>'+MFB+'<br/>'+MFB+'<br/>';
 var MERIDA_FRAME_COLS='abcdefgh',MERIDA_FRAME_ROWS='12345678';
-var MERIDA_FRAME_D_BOTTOM='';
-var MERIDA_FRAME_D_BOTTOM_COORD='';
-var MERIDA_FRAME_D_LEFT='';
-var MERIDA_FRAME_D_LEFT_COORD='';
-var MERIDA_FRAME_D_RIGHT='';
-var MERIDA_FRAME_D_RIGHT_COORD='';
-var MERIDA_FRAME_D_ROUND_CORNER='';
-var MERIDA_FRAME_D_SQUARE_CORNER='';
-var MERIDA_FRAME_D_TOP='';
-var MERIDA_FRAME_D_TOP_COORD='';
-var MERIDA_FRAME_S_BOTTOM='';
-var MERIDA_FRAME_S_BOTTOM_COORD='';
-var MERIDA_FRAME_S_LEFT='';
-var MERIDA_FRAME_S_LEFT_COORD='';
-var MERIDA_FRAME_S_RIGHT='';
-var MERIDA_FRAME_S_RIGHT_COORD='';
-var MERIDA_FRAME_S_ROUND_CORNER='';
-var MERIDA_FRAME_S_SQUARE_CORNER='';
-var MERIDA_FRAME_S_TOP='';
-var MERIDA_FRAME_S_TOP_COORD='';
+var MERIDA_FRAME_D_BOTTOM='';
+var MERIDA_FRAME_D_BOTTOM_COORD='';
+var MERIDA_FRAME_D_LEFT='';
+var MERIDA_FRAME_D_LEFT_COORD='';
+var MERIDA_FRAME_D_RIGHT='';
+var MERIDA_FRAME_D_RIGHT_COORD='';
+var MERIDA_FRAME_D_ROUND_CORNER='';
+var MERIDA_FRAME_D_SQUARE_CORNER='';
+var MERIDA_FRAME_D_TOP='';
+var MERIDA_FRAME_D_TOP_COORD='';
+var MERIDA_FRAME_S_BOTTOM='';
+var MERIDA_FRAME_S_BOTTOM_COORD='';
+var MERIDA_FRAME_S_LEFT='';
+var MERIDA_FRAME_S_LEFT_COORD='';
+var MERIDA_FRAME_S_RIGHT='';
+var MERIDA_FRAME_S_RIGHT_COORD='';
+var MERIDA_FRAME_S_ROUND_CORNER='';
+var MERIDA_FRAME_S_SQUARE_CORNER='';
+var MERIDA_FRAME_S_TOP='';
+var MERIDA_FRAME_S_TOP_COORD='';
 
 function detectIE(){return navigator.appName=='Microsoft Internet Explorer';}
 function ChessBoard(_f,_ab,_cm,_as,_ac){this.fenCode=_f;this.attrBorder=_ab.split(' ');this.colorMode=_cm;this.attrStyle=_as;this.attrClass=_ac;this.rowCount=0;this.colCount=0;this.isBorderShownTop=false;this.isBorderShownBottom=false;this.isBorderShownLeft=false;this.isBorderShownRight=false;this.isCoordShownTop=false;this.isCoordShownBottom=false;this.isCoordShownLeft=false;this.isCoordShownRight=false;this.isBorderStyleSimple=true;this.isCornerStyleRound=true;this.isCoordPadded=false;this.coordOriginCol=0;this.coordOriginRow=0;function isCoordinate(c){if(c.length!=2)return false;var cc=c.charCodeAt(0)-0x60,cr=c.charCodeAt(1)-0x30;return cc>=1&&cc<=8&&cr>=1&&cr<=8;}function isNSEO(n){if(n.length>4)return false;for(var x=0;x<n.length;x++){var y=n.charAt(x);if(y!='n'&&y!='s'&&y!='e'&&y!='o')return false;}return true;}function extractBoardFromFEN(f){var m=f.match(/(.*)([bwBW]\s+[KQkq-]+\s+[a-h1-8-]+\s+[0-9]+\s+[0-9]+\s*)/);return m?m[1].trim():f;}
