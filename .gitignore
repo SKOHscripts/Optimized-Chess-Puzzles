@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Generated data files
+lichess_db_puzzle.csv.zst
+lichess_db_puzzle.csv
+puzzles_*.csv
+chess_openings.csv
+opening_report.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
