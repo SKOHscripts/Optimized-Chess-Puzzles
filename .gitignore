@@ -22,11 +22,14 @@ env/
 coverage.xml
 htmlcov/
 
-# Generated data files
+# Generated data files (large, produced by lichess_optimized_puzzles_datasets.py)
 lichess_db_puzzle.csv.zst
 lichess_db_puzzle.csv
 puzzles_*.csv
 chess_openings.csv
+# Manually curated decks — tracked in git
+!puzzles_errors_traps.csv
+!puzzles_openings.csv
 opening_report.txt
 
 # IDE
