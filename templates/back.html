@@ -74,8 +74,6 @@
  *==============================================================================
  */
 
-// const customLog = require('./logger');
-
 var XMLNS = 'c:';
 
 var ATTR_BORDER = 'border'; //"solid", "double", "square", "round", "pad", origin, nseo
@@ -780,7 +778,7 @@ function scheduleBoardFit() {
   const run = () => requestAnimationFrame(fitChessBoardToScreen);
 
   // Run multiple times to catch late layout/font reflows
-  //run();
+  run();
   //setTimeout(run, 50);
   //setTimeout(run, 150);
   //setTimeout(run, 400);
@@ -811,6 +809,6 @@ onDomReady(function() {
 });
 
 window.addEventListener('orientationchange', () => scheduleBoardFit());
-window.addEventListener('resize', () => scheduleBoardFit);
+window.addEventListener('resize', () => scheduleBoardFit());
 
 </script>

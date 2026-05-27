@@ -62,8 +62,6 @@
  *==============================================================================
  */
 
-// const customLog = require('./logger');
-
 var XMLNS = 'c:';
 
 var ATTR_BORDER = 'border'; //"solid", "double", "square", "round", "pad", origin, nseo
@@ -851,6 +849,6 @@ onDomReady(function() {
 });
 
 window.addEventListener('orientationchange', () => scheduleBoardFit());
-window.addEventListener('resize', () => scheduleBoardFit);
+window.addEventListener('resize', () => scheduleBoardFit());
 
 </script>

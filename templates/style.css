@@ -1,14 +1,14 @@
 /* ========== BASIC CONFIGURATION ========== */
-@font-face { 
-  font-family: 'Chess Merida Unicode'; 
-  src: url('_chess_merida_unicode.ttf'); 
+@font-face {
+  font-family: 'Chess Merida Unicode';
+  src: url('_chess_merida_unicode.ttf');
+  font-display: swap;
 }
 
 :root {
   /* Thème : Solarized Vert (style sépia-vert) */
   --sq-light: #E8EDD5; /* clair sépia-vert, comme solarized */
   --sq-dark:  #5E7556; /* vert-olive grisé, contraste solarized */
-  --coord:    #6B7D63; /* coordonnées vert-gris, ton solarized */
   --piece-w:  #F6FDE3; /* pièces blanches sépia-vert clair */
   --piece-b:  #0A3629; /* pièces noires vert sarcelle profond */
   --board-radius: 16px;
@@ -18,7 +18,7 @@
 
 /* ========== STRUCTURE ========== */
 .card {
-  margin: 1;
+  margin: 0;
   color: #111;
   font-size: clamp(18px, 2.2vw, 48px);
   text-align: center;
@@ -161,7 +161,6 @@ table.chess td.rows {
 .theme-solarized {
   --sq-light: #EEE8D5;
   --sq-dark: #586E75;
-  --coord: #657B83;
   --piece-w: #FDF6E3;
   --piece-b: #073642;
 }
@@ -169,12 +168,8 @@ table.chess td.rows {
 .theme-paper-sand {
   --sq-light: #EDEBD7;
   --sq-dark: #B8B2A3;
-  --coord: #7A7D7E;
   --piece-w: #FCFCF8;
   --piece-b: #2B2B2B;
-  --board-radius: 16px;
-  --board-stroke: rgba(0,0,0,.40);
-  --board-shadow: 0 16px 26px rgba(0,0,0,.18), 0 4px 10px rgba(0,0,0,.12);
 }
 
 .theme-paper-sand table.chess div.pcbg {
@@ -282,8 +277,8 @@ table.chess td.rows {
   margin: 6px 0 10px 0;
 }
 
-/* Badge puzzle-id (pastille monospace) */
-.puzzle-id, .clean-pill {
+/* Badge pill (pastille monospace) */
+.clean-pill {
   font: 500 12px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--piece-b);
   background: var(--sq-light);
@@ -296,8 +291,7 @@ table.chess td.rows {
 
 /* Badge move (pastille monospace bold) */
 .clean-pill-bold {
-  font: 500 12px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-weight: bold;
+  font: bold 12px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--piece-w);
   background: var(--sq-dark);
   border: 1px solid rgba(0,0,0,.12);
@@ -307,9 +301,3 @@ table.chess td.rows {
   line-height: 1.3;
 }
 
-/* Focus visible sur éléments focusables (si le badge devient focusable) */
-.puzzle-id:focus-visible {
-  outline: 2px solid #3B82F6;
-  outline-offset: 2px;
-  border-color: rgba(59,130,246,.55);
-}
