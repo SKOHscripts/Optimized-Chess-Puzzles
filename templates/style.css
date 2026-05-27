@@ -9,6 +9,7 @@
   /* Thème : Solarized Vert (style sépia-vert) */
   --sq-light: #E8EDD5; /* clair sépia-vert, comme solarized */
   --sq-dark:  #5E7556; /* vert-olive grisé, contraste solarized */
+  --coord:    #6B7D63; /* coordonnées vert-gris, ton solarized */
   --piece-w:  #F6FDE3; /* pièces blanches sépia-vert clair */
   --piece-b:  #0A3629; /* pièces noires vert sarcelle profond */
   --board-radius: 16px;
@@ -152,8 +153,15 @@ table.chess div.sq {
 table.chess div.pcbg { color: var(--piece-w); }
 table.chess div.pcfg { color: var(--piece-b); }
 
-table.chess td.cols, 
+table.chess td.cols,
 table.chess td.rows {
+  color: var(--coord);
+  font-family: system-ui, -apple-system, sans-serif !important;
+  font-size: 0.35em;
+}
+
+.coords-hidden table.chess td.cols,
+.coords-hidden table.chess td.rows {
   display: none !important;
 }
 
@@ -161,6 +169,7 @@ table.chess td.rows {
 .theme-solarized {
   --sq-light: #EEE8D5;
   --sq-dark: #586E75;
+  --coord: #657B83;
   --piece-w: #FDF6E3;
   --piece-b: #073642;
 }
@@ -168,6 +177,7 @@ table.chess td.rows {
 .theme-paper-sand {
   --sq-light: #EDEBD7;
   --sq-dark: #B8B2A3;
+  --coord: #7A7D7E;
   --piece-w: #FCFCF8;
   --piece-b: #2B2B2B;
 }
@@ -254,6 +264,13 @@ table.chess td.rows {
 
 .btn.chesscom:active {
   background: #6E8F40;
+}
+
+/* Coords toggle — active/on state */
+.btn.coords-on {
+  background: var(--sq-dark);
+  color: var(--sq-light);
+  border-color: transparent;
 }
 
 /* Focus accessible */
