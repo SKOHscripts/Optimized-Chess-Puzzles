@@ -692,7 +692,7 @@ function applyFenToBoard() {
   //    function-scoped and never conflict when both card faces share the same
   //    JS context (Anki reuses the WebView; module-level const would throw
   //    "already declared" on the second template script).
-  const lang = (navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
+  const lang = ((navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
   const labels = {
     fr: { white: "Trait aux blancs",  black: "Trait aux noirs",   moves: "Trouvez la séquence de coups",          coords: "Coords"   },
     de: { white: "Weiß am Zug",       black: "Schwarz am Zug",    moves: "Finde die Zugfolge",                    coords: "Koord."   },

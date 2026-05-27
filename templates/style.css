@@ -270,6 +270,14 @@ table.chess td.rows {
   padding: 5px 10px;
 }
 
+/* Coords toggle — pinned to top-right corner, outside normal flow */
+#coords-toggle {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 100;
+}
+
 /* Coords toggle — active/on state */
 .btn.coords-on {
   background: var(--sq-dark);
