@@ -156,8 +156,6 @@ table.chess div.pcfg { color: var(--piece-b); }
 table.chess td.cols,
 table.chess td.rows {
   color: var(--coord);
-  font-family: system-ui, -apple-system, sans-serif !important;
-  font-size: 0.35em;
 }
 
 .coords-hidden table.chess td.cols,
@@ -264,6 +262,12 @@ table.chess td.rows {
 
 .btn.chesscom:active {
   background: #6E8F40;
+}
+
+/* Small button variant */
+.btn-sm {
+  font-size: 11px;
+  padding: 5px 10px;
 }
 
 /* Coords toggle — active/on state */
