@@ -59,7 +59,7 @@ SAMPLE_CARDS: List[Dict[str, str]] = [
         "Popularity": "90",
         "Themes": "fork sacrifice",
         "Opening": "Italian",
-        "Display Theme": "theme-solarized",
+        "Display Theme": "theme-green",
         "Tags": "OCP::fork OCP::sacrifice OCP::Italian",
     },
     {
@@ -70,7 +70,7 @@ SAMPLE_CARDS: List[Dict[str, str]] = [
         "Popularity": "88",
         "Themes": "pin",
         "Opening": "Italian",
-        "Display Theme": "theme-solarized",
+        "Display Theme": "theme-green",
         "Tags": "OCP::pin OCP::Italian",
     },
     {
@@ -81,7 +81,7 @@ SAMPLE_CARDS: List[Dict[str, str]] = [
         "Popularity": "95",
         "Themes": "endgame pawnEndgame",
         "Opening": "",
-        "Display Theme": "theme-solarized",
+        "Display Theme": "theme-green",
         "Tags": "OCP::endgame OCP::pawnEndgame",
     },
 ]

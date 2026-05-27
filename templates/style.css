@@ -151,6 +151,14 @@ table.chess td.rows {
 }
 
 /* ========== COLOR THEMES ========== */
+.theme-green {
+  --sq-light: #E8EDD5;
+  --sq-dark:  #5E7556;
+  --coord:    #6B7D63;
+  --piece-w:  #F6FDE3;
+  --piece-b:  #0A3629;
+}
+
 .theme-solarized {
   --sq-light: #EEE8D5;
   --sq-dark: #586E75;
