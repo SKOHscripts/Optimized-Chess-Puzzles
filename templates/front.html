@@ -18,7 +18,7 @@
 
   <!-- Puzzle display theme -->
   <figure>
-    <c:chess id="fen_fig" class="cdig"></c:chess>
+    <c:chess id="fen_fig" class="cdig" border="a1"></c:chess>
   </figure>
 
   <!-- Puzzle to move pill + coords toggle -->
@@ -839,6 +839,7 @@ function setCoordsVisible(show) {
   document.documentElement.classList.toggle('coords-hidden', !show);
   var btn = document.getElementById('coords-toggle');
   if (btn) btn.classList.toggle('coords-on', show);
+  scheduleBoardFit();
 }
 
 function initCoordsToggle() {
