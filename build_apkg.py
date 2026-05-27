@@ -14,6 +14,8 @@ import argparse
 import csv
 import hashlib
 import os
+import shutil
+import zipfile
 from pathlib import Path
 from typing import List, Dict
 
@@ -89,6 +91,24 @@ SAMPLE_CARDS: List[Dict[str, str]] = [
 
 def _deck_id(name: str) -> int:
     return int(hashlib.sha1(name.encode()).hexdigest()[:8], 16)
+
+
+def _upgrade_to_anki21(path: str) -> None:
+    """Rename collection.anki2 → collection.anki21 inside the .apkg zip.
+
+    Anki 23.10+ (Qt6) refuses to import packages that contain only
+    collection.anki2 and raises error 500 "specified file not found in
+    archive". Renaming the entry makes the file importable on all versions
+    (Anki 2.1.28+ recognises both names).
+    """
+    tmp = path + ".tmp"
+    with zipfile.ZipFile(path, "r") as zin, zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.infolist():
+            data = zin.read(item.filename)
+            if item.filename == "collection.anki2":
+                item.filename = "collection.anki21"
+            zout.writestr(item, data)
+    shutil.move(tmp, path)
 
 
 def _load_templates() -> tuple:
@@ -173,6 +193,7 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
         package.media_files = [media_path]
 
     package.write_to_file(output)
+    _upgrade_to_anki21(output)
     print(f"\n✅ Built {output} — {total_notes} cards across {len(decks)} sub-decks")
 
 
@@ -191,6 +212,7 @@ def build_sample(output: str) -> None:
 
     package = genanki.Package(decks)
     package.write_to_file(output)
+    _upgrade_to_anki21(output)
     print(f"✅ Built sample {output} — {len(SAMPLE_CARDS)} cards × {len(ELO_RANGES)} sub-decks")
 
 
