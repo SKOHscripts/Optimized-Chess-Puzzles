@@ -40,7 +40,7 @@ from typing import List, Tuple
 
 import chess
 import pandas
-import requests
+import requests  # type: ignore[import-untyped]
 
 PUZZLE_URL = "https://database.lichess.org/lichess_db_puzzle.csv.zst"
 PUZZLE_FILE = "lichess_db_puzzle.csv.zst"
@@ -342,7 +342,7 @@ def report_theme_coverage(
         Original tranche data for comparison
     """
     selected_themes: set = set()
-    theme_freq = {}
+    theme_freq: dict[str, int] = {}
 
     for row in sampled_rows:
         for theme in str(row['Themes']).split():

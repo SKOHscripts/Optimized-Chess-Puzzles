@@ -28,7 +28,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install genanki
+        run: pip install -r requirements-build.txt
 
       - name: Build sample deck (CI)
         if: github.event.inputs.real_build != 'true'

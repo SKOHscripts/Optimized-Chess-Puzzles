@@ -1,4 +1,3 @@
 pandas
 requests
-chess
-genanki
+chess==1.10.0

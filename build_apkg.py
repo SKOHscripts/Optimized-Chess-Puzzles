@@ -195,6 +195,7 @@ def build_sample(output: str) -> None:
 
 
 def main() -> None:
+    """Parse CLI arguments and build the Anki deck."""
     parser = argparse.ArgumentParser(description="Build Anki .apkg for Optimized Chess Puzzles")
     parser.add_argument("--csv-dir", default=".", help="Directory containing puzzles_*.csv files")
     parser.add_argument(
