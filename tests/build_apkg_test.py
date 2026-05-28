@@ -1,20 +1,16 @@
 """
-Tests for build_apkg.py — stable identifiers across builds.
+Tests for build_apkg.py — stable identifiers and dynamic deck descriptions.
 
-Key invariant: successive imports of updated .apkg files must update
-existing Anki notes rather than duplicate them.  This requires three
-identifiers to remain stable between builds:
+Key invariants:
   1. Note GUID  — keyed on Puzzle ID only (not on mutable fields)
   2. Model ID   — hardcoded constant
   3. Deck IDs   — derived from deck name via SHA1
+  4. Descriptions — contain puzzle count, themes, ELO stats from the rows
 """
 
 import sys
 import os
 import zipfile
-import tempfile
-
-import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import build_apkg
@@ -23,6 +19,7 @@ from build_apkg import (
     MODEL_ID,
     _deck_id,
     _build_model,
+    _build_description,
     _row_to_note,
     build_sample,
     ALL_DECKS,
@@ -154,3 +151,94 @@ class TestBuildSampleStability:
         assert "collection.anki2" in names
         assert "collection.anki21" in names
         assert "meta" in names
+
+
+# ---------------------------------------------------------------------------
+# 5. Deck descriptions
+# ---------------------------------------------------------------------------
+
+def _make_themed_row(puzzle_id: str, themes: str, rating: str = "1200", popularity: str = "90") -> dict:
+    return {
+        "PuzzleID": puzzle_id,
+        "FEN": "",
+        "Moves": "",
+        "Rating": rating,
+        "Popularity": popularity,
+        "Themes": themes,
+        "Opening": "",
+        "Display Theme": "theme-solarized",
+        "Tags": "",
+    }
+
+
+class TestBuildDescription:
+    def test_empty_rows_returns_empty_string(self):
+        assert _build_description([]) == ""
+
+    def test_singular_puzzle(self):
+        desc = _build_description([_make_row("p1")])
+        assert "1 puzzle" in desc
+
+    def test_plural_puzzles(self):
+        desc = _build_description([_make_row("p1"), _make_row("p2")])
+        assert "2 puzzles" in desc
+
+    def test_rating_range_and_average(self):
+        rows = [
+            _make_themed_row("p1", "fork", rating="1000"),
+            _make_themed_row("p2", "pin",  rating="1200"),
+        ]
+        desc = _build_description(rows)
+        assert "1000" in desc
+        assert "1200" in desc
+        assert "average 1100" in desc
+
+    def test_popularity_average(self):
+        rows = [
+            _make_themed_row("p1", "fork", popularity="80"),
+            _make_themed_row("p2", "fork", popularity="100"),
+        ]
+        desc = _build_description(rows)
+        assert "average 90%" in desc
+
+    def test_themes_listed_by_frequency(self):
+        rows = [
+            _make_themed_row("p1", "fork pin"),
+            _make_themed_row("p2", "fork"),
+            _make_themed_row("p3", "pin"),
+            _make_themed_row("p4", "fork"),
+        ]
+        desc = _build_description(rows)
+        assert "fork (3)" in desc
+        assert "pin (2)" in desc
+        assert desc.index("fork (3)") < desc.index("pin (2)")  # fork first (more frequent)
+
+    def test_theme_count_in_description(self):
+        rows = [_make_themed_row("p1", "fork pin skewer")]
+        desc = _build_description(rows)
+        assert "3 themes" in desc
+
+    def test_singular_theme(self):
+        rows = [_make_themed_row("p1", "fork")]
+        desc = _build_description(rows)
+        assert "1 theme" in desc
+        assert "1 themes" not in desc
+
+    def test_missing_rating_omits_rating_line(self):
+        rows = [_make_themed_row("p1", "fork", rating="")]
+        desc = _build_description(rows)
+        assert "Rating" not in desc
+
+    def test_missing_popularity_omits_popularity_line(self):
+        rows = [_make_themed_row("p1", "fork", popularity="")]
+        desc = _build_description(rows)
+        assert "Popularity" not in desc
+
+    def test_description_is_stable(self):
+        rows = [_make_row("p1"), _make_row("p2")]
+        assert _build_description(rows) == _build_description(rows)
+
+    def test_sample_cards_have_description(self):
+        desc = _build_description(list(build_apkg.SAMPLE_CARDS))
+        assert "3 puzzles" in desc
+        assert "fork" in desc

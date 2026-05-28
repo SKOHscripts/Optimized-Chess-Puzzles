@@ -174,6 +174,46 @@ def _row_to_note(row: Dict[str, str], model: genanki.Model) -> PuzzleNote:
     )
 
 
+def _build_description(rows: List[Dict[str, str]]) -> str:
+    """Build a plain-text deck description from a list of puzzle rows.
+
+    Includes puzzle count, ELO range/average, popularity average, and the top
+    themes sorted by frequency — mirroring what lichess_optimized_puzzles_datasets
+    reports at generation time.
+    """
+    count = len(rows)
+    if count == 0:
+        return ""
+
+    theme_counts: Dict[str, int] = {}
+    for row in rows:
+        for theme in row.get("Themes", "").split():
+            if theme:
+                theme_counts[theme] = theme_counts.get(theme, 0) + 1
+
+    ratings = [int(row["Rating"]) for row in rows if row.get("Rating", "").isdigit()]
+    pops = [int(row["Popularity"]) for row in rows if row.get("Popularity", "").isdigit()]
+
+    lines: List[str] = [f"{count} puzzle{'s' if count != 1 else ''}"]
+
+    if ratings:
+        lines.append(
+            f"Rating: {min(ratings)}–{max(ratings)}, average {sum(ratings) // len(ratings)}"
+        )
+    if pops:
+        lines.append(f"Popularity: average {sum(pops) // len(pops)}%")
+
+    if theme_counts:
+        n_themes = len(theme_counts)
+        top = sorted(theme_counts.items(), key=lambda x: -x[1])[:15]
+        lines.append(
+            f"\n{n_themes} theme{'s' if n_themes != 1 else ''}: "
+            + " · ".join(f"{t} ({n})" for t, n in top)
+        )
+
+    return "\n".join(lines)
+
+
 def build_from_csvs(csv_dir: str, output: str) -> None:
     """Build a real .apkg from the generated puzzle CSV files."""
     front, back, css = _load_templates()
@@ -184,6 +224,7 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
     )
 
     decks: List[genanki.Deck] = []
+    all_rows: List[Dict[str, str]] = []
     total_notes = 0
 
     for csv_filename, deck_suffix in ALL_DECKS:
@@ -193,22 +234,30 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
             continue
 
         deck_name = f"{DECK_PARENT}::{deck_suffix}"
-        deck = genanki.Deck(_deck_id(deck_name), deck_name)
 
         with open(csv_path, encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            count = 0
-            for row in reader:
-                deck.add_note(_row_to_note(row, model))
-                count += 1
+            rows = list(csv.DictReader(f))
+
+        all_rows.extend(rows)
+        deck = genanki.Deck(
+            _deck_id(deck_name), deck_name, description=_build_description(rows)
+        )
+        for row in rows:
+            deck.add_note(_row_to_note(row, model))
 
         decks.append(deck)
-        total_notes += count
-        print(f"  ✓ {deck_suffix}: {count} cards")
+        total_notes += len(rows)
+        print(f"  ✓ {deck_suffix}: {len(rows)} cards")
 
     if not decks:
         print("No CSV files found. Run lichess_optimized_puzzles_datasets.py first.")
         return
+
+    n_subdecks = len(decks)
+    parent_deck = genanki.Deck(
+        _deck_id(DECK_PARENT), DECK_PARENT, description=_build_description(all_rows)
+    )
+    decks.insert(0, parent_deck)
 
     package = genanki.Package(decks)
     if os.path.exists(media_path):
@@ -216,7 +265,7 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
 
     package.write_to_file(output)
     _upgrade_to_anki21(output)
-    print(f"\n✅ Built {output} — {total_notes} cards across {len(decks)} sub-decks")
+    print(f"\n✅ Built {output} — {total_notes} cards across {n_subdecks} sub-decks")
 
 
 def build_sample(output: str) -> None:
@@ -224,13 +273,19 @@ def build_sample(output: str) -> None:
     front, back, css = _load_templates()
     model = _build_model(front, back, css)
 
+    sample_rows: List[Dict[str, str]] = list(SAMPLE_CARDS)
+    desc = _build_description(sample_rows)
+
     decks: List[genanki.Deck] = []
     for _, deck_suffix in ALL_DECKS:
         deck_name = f"{DECK_PARENT}::{deck_suffix}"
-        deck = genanki.Deck(_deck_id(deck_name), deck_name)
+        deck = genanki.Deck(_deck_id(deck_name), deck_name, description=desc)
         for card in SAMPLE_CARDS:
             deck.add_note(_row_to_note(card, model))
         decks.append(deck)
+
+    parent_deck = genanki.Deck(_deck_id(DECK_PARENT), DECK_PARENT, description=desc)
+    decks.insert(0, parent_deck)
 
     package = genanki.Package(decks)
     package.write_to_file(output)
