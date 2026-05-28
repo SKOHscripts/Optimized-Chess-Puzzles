@@ -253,7 +253,6 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
         print("No CSV files found. Run lichess_optimized_puzzles_datasets.py first.")
         return
 
-    n_subdecks = len(decks)
     parent_deck = genanki.Deck(
         _deck_id(DECK_PARENT), DECK_PARENT, description=_build_description(all_rows)
     )
@@ -265,7 +264,7 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
 
     package.write_to_file(output)
     _upgrade_to_anki21(output)
-    print(f"\n✅ Built {output} — {total_notes} cards across {n_subdecks} sub-decks")
+    print(f"\n✅ Built {output} — {total_notes} cards across {len(decks) - 1} sub-decks")
 
 
 def build_sample(output: str) -> None:
