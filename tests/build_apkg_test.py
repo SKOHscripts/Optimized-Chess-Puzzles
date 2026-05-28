@@ -23,6 +23,7 @@ from build_apkg import (
     _load_deck_stats,
     _row_to_note,
     build_sample,
+    build_from_csvs,
     ALL_DECKS,
     DECK_PARENT,
 )
@@ -278,3 +279,63 @@ class TestLoadDeckStats:
         (tmp_path / "puzzles_stats.json").write_text(json.dumps(stats))
         loaded = _load_deck_stats(str(tmp_path))
         assert loaded["puzzles_1000minus.csv"]["coverage_pct"] == 74.2
+
+
+class TestBuildFromCsvsDeckStats:
+    """build_from_csvs accepts deck_stats directly, bypassing JSON."""
+
+    def _write_csv(self, path, rows):
+        import csv as csv_mod
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv_mod.DictWriter(f, fieldnames=[
+                "PuzzleID", "FEN", "Moves", "Rating", "Popularity",
+                "Themes", "Opening", "Display Theme", "Tags",
+            ])
+            writer.writeheader()
+            writer.writerows(rows)
+
+    def test_deck_stats_param_produces_apkg(self, tmp_path):
+        """build_from_csvs completes without errors when deck_stats are injected."""
+        import zipfile as zf
+        import unittest.mock as mock
+
+        csv_path = tmp_path / "puzzles_errors_traps.csv"
+        self._write_csv(str(csv_path), [
+            {
+                "PuzzleID": "t1", "FEN": "8/8/8/8/8/8/8/8 w - - 0 1", "Moves": "e4",
+                "Rating": "1200", "Popularity": "90", "Themes": "fork",
+                "Opening": "", "Display Theme": "theme-solarized", "Tags": "",
+            }
+        ])
+
+        out = str(tmp_path / "out.apkg")
+        with mock.patch("build_apkg._load_templates",
+                        return_value=("{{PuzzleID}}", "{{FEN}}", "")):
+            build_from_csvs(
+                str(tmp_path), out,
+                deck_stats={"puzzles_errors_traps.csv": {"coverage_pct": 88.5}},
+            )
+
+        with zf.ZipFile(out) as z:
+            assert "collection.anki2" in z.namelist()
+
+        # Verify coverage is reflected in the description (unit-tested in TestBuildDescription)
+        desc = _build_description(
+            [{"PuzzleID": "t1", "Themes": "fork", "Rating": "1200", "Popularity": "90",
+              "FEN": "", "Moves": "", "Opening": "", "Display Theme": "", "Tags": ""}],
+            coverage=88.5,
+        )
+        assert "88.5%" in desc
+
+    def test_no_json_read_when_stats_provided(self, tmp_path):
+        """_load_deck_stats must not be called when deck_stats is passed directly."""
+        import unittest.mock as mock
+
+        csv_path = tmp_path / "puzzles_errors_traps.csv"
+        self._write_csv(str(csv_path), [])
+
+        out = str(tmp_path / "out.apkg")
+        with mock.patch("build_apkg._load_deck_stats") as mock_load, \
+             mock.patch("build_apkg._load_templates", return_value=("", "", "")):
+            build_from_csvs(str(tmp_path), out, deck_stats={})
+            mock_load.assert_not_called()

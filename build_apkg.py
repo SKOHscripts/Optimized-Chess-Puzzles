@@ -227,12 +227,22 @@ def _build_description(rows: List[Dict[str, str]], coverage: Optional[float] = N
     return "\n".join(lines)
 
 
-def build_from_csvs(csv_dir: str, output: str) -> None:
-    """Build a real .apkg from the generated puzzle CSV files."""
+def build_from_csvs(
+    csv_dir: str,
+    output: str,
+    deck_stats: Optional[Dict] = None,
+) -> None:
+    """Build a real .apkg from the generated puzzle CSV files.
+
+    deck_stats may be passed directly (e.g. from build_full()) to avoid
+    reading puzzles_stats.json from disk; otherwise the JSON is loaded if
+    present.
+    """
     front, back, css = _load_templates()
     model = _build_model(front, back, css)
 
-    deck_stats = _load_deck_stats(csv_dir)
+    if deck_stats is None:
+        deck_stats = _load_deck_stats(csv_dir)
     decks: List[genanki.Deck] = []
     all_rows: List[Dict[str, str]] = []
     total_notes = 0
@@ -305,6 +315,21 @@ def build_sample(output: str) -> None:
     print(f"✅ Built sample {output} — {len(SAMPLE_CARDS)} cards × {len(ALL_DECKS)} sub-decks")
 
 
+def build_full(csv_dir: str, output: str) -> None:
+    """Run the full pipeline in a single process: download → process → build.
+
+    Imports lichess_optimized_puzzles_datasets lazily so pandas/chess are
+    only loaded when this function is actually called.  Coverage stats flow
+    directly from extract_tranches() to build_from_csvs() in memory,
+    bypassing puzzles_stats.json entirely.
+    """
+    import lichess_optimized_puzzles_datasets as ld  # pylint: disable=import-outside-toplevel
+    ld.download_puzzle_db()
+    ld.decompress_zst()
+    stats = ld.extract_tranches(ld.CSV_FILE, target_per_theme=20, popularity_threshold=90)
+    build_from_csvs(csv_dir, output, deck_stats=stats)
+
+
 def main() -> None:
     """Parse CLI arguments and build the Anki deck."""
     parser = argparse.ArgumentParser(description="Build Anki .apkg for Optimized Chess Puzzles")
@@ -319,10 +344,17 @@ def main() -> None:
         action="store_true",
         help="Build a minimal demo deck (no real CSVs needed)",
     )
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Full pipeline: download Lichess data, process it, then build .apkg",
+    )
     args = parser.parse_args()
 
     print(f"Building Anki deck: {args.output}")
-    if args.sample:
+    if args.full:
+        build_full(args.csv_dir, args.output)
+    elif args.sample:
         build_sample(args.output)
     else:
         build_from_csvs(args.csv_dir, args.output)

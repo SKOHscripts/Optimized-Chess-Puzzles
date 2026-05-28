@@ -227,7 +227,7 @@ def extract_tranches(
     csv_file: str,
     target_per_theme: int = 30,
     popularity_threshold: int = 90,
-) -> None:
+) -> Dict[str, Dict]:
     """
     Extract and process puzzle tranches for different ELO ranges.
 
@@ -286,6 +286,7 @@ def extract_tranches(
 
     with open("puzzles_stats.json", "w", encoding="utf-8") as stats_file:
         json.dump(all_stats, stats_file, indent=2)
+    return all_stats
 
 
 def _write_csv_file(sampled_rows: List, filename) -> None:
