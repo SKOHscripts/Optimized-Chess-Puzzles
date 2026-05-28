@@ -13,16 +13,18 @@ Usage:
 import argparse
 import csv
 import hashlib
+import json
 import os
 import shutil
 import zipfile
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List, Optional
 
 import genanki
 
 DECK_PARENT = "♟️ Optimized Chess Puzzles"
 MODEL_NAME = "Chess Optimized Tactics"
+MEDIA_PATH = os.path.join("♟️_Optimized_Chess_Puzzles", "media", "_chess_merida_unicode.ttf")
 
 # Stable ID matching the reference deck (do not change — Anki uses it to
 # identify the note type when merging with existing collections).
@@ -174,12 +176,22 @@ def _row_to_note(row: Dict[str, str], model: genanki.Model) -> PuzzleNote:
     )
 
 
-def _build_description(rows: List[Dict[str, str]]) -> str:
+def _load_deck_stats(csv_dir: str) -> Dict[str, Dict]:
+    """Load per-tranche coverage stats written by lichess_optimized_puzzles_datasets."""
+    path = os.path.join(csv_dir, "puzzles_stats.json")
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _build_description(rows: List[Dict[str, str]], coverage: Optional[float] = None) -> str:
     """Build a plain-text deck description from a list of puzzle rows.
 
     Includes puzzle count, ELO range/average, popularity average, and the top
     themes sorted by frequency — mirroring what lichess_optimized_puzzles_datasets
-    reports at generation time.
+    reports at generation time.  When coverage is provided (ratio of unique themes
+    in the sample vs the full ELO tranche), it is shown inline with the theme list.
     """
     count = len(rows)
     if count == 0:
@@ -205,9 +217,10 @@ def _build_description(rows: List[Dict[str, str]]) -> str:
 
     if theme_counts:
         n_themes = len(theme_counts)
+        cov_label = f" ({coverage:.1f}% of tranche themes)" if coverage is not None else ""
         top = sorted(theme_counts.items(), key=lambda x: -x[1])[:15]
         lines.append(
-            f"\n{n_themes} theme{'s' if n_themes != 1 else ''}: "
+            f"\n{n_themes} theme{'s' if n_themes != 1 else ''}{cov_label}: "
             + " · ".join(f"{t} ({n})" for t, n in top)
         )
 
@@ -219,10 +232,7 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
     front, back, css = _load_templates()
     model = _build_model(front, back, css)
 
-    media_path = os.path.join(
-        "♟️_Optimized_Chess_Puzzles", "media", "_chess_merida_unicode.ttf"
-    )
-
+    deck_stats = _load_deck_stats(csv_dir)
     decks: List[genanki.Deck] = []
     all_rows: List[Dict[str, str]] = []
     total_notes = 0
@@ -240,7 +250,10 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
 
         all_rows.extend(rows)
         deck = genanki.Deck(
-            _deck_id(deck_name), deck_name, description=_build_description(rows)
+            _deck_id(deck_name), deck_name,
+            description=_build_description(
+                rows, (deck_stats.get(csv_filename) or {}).get("coverage_pct")
+            ),
         )
         for row in rows:
             deck.add_note(_row_to_note(row, model))
@@ -259,8 +272,8 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
     decks.insert(0, parent_deck)
 
     package = genanki.Package(decks)
-    if os.path.exists(media_path):
-        package.media_files = [media_path]
+    if os.path.exists(MEDIA_PATH):
+        package.media_files = [MEDIA_PATH]
 
     package.write_to_file(output)
     _upgrade_to_anki21(output)

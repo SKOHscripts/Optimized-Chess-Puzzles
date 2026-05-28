@@ -20,6 +20,7 @@ from build_apkg import (
     _deck_id,
     _build_model,
     _build_description,
+    _load_deck_stats,
     _row_to_note,
     build_sample,
     ALL_DECKS,
@@ -242,3 +243,38 @@ class TestBuildDescription:
         desc = _build_description(list(build_apkg.SAMPLE_CARDS))
         assert "3 puzzles" in desc
         assert "fork" in desc
+
+    def test_coverage_shown_when_provided(self):
+        rows = [_make_themed_row("p1", "fork pin")]
+        desc = _build_description(rows, coverage=74.3)
+        assert "74.3%" in desc
+        assert "of tranche themes" in desc
+
+    def test_coverage_absent_when_none(self):
+        rows = [_make_themed_row("p1", "fork pin")]
+        desc = _build_description(rows, coverage=None)
+        assert "tranche" not in desc
+
+    def test_coverage_100_percent(self):
+        rows = [_make_themed_row("p1", "fork")]
+        desc = _build_description(rows, coverage=100.0)
+        assert "100.0%" in desc
+
+
+class TestLoadDeckStats:
+    def test_returns_empty_dict_when_file_absent(self, tmp_path):
+        assert _load_deck_stats(str(tmp_path)) == {}
+
+    def test_loads_coverage_pct(self, tmp_path):
+        import json
+        stats = {
+            "puzzles_1000minus.csv": {
+                "selected": 847,
+                "unique_themes_sample": 23,
+                "unique_themes_tranche": 31,
+                "coverage_pct": 74.2,
+            }
+        }
+        (tmp_path / "puzzles_stats.json").write_text(json.dumps(stats))
+        loaded = _load_deck_stats(str(tmp_path))
+        assert loaded["puzzles_1000minus.csv"]["coverage_pct"] == 74.2

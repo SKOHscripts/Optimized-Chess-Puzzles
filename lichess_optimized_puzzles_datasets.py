@@ -32,11 +32,12 @@ The script generates CSV files for different ELO ranges with puzzles selected to
 provide comprehensive coverage of tactical themes and opening patterns.
 """
 
+import json
 import os
 import re
 import subprocess
 from collections import defaultdict
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import chess
 import pandas
@@ -232,6 +233,8 @@ def extract_tranches(
 
     Creates separate CSV files for each ELO range with optimally selected puzzles.
     Ranges include: <1000, 1000-1100, 1100-1200, ..., 1700-1800, 1800+
+    Also writes puzzles_stats.json with per-tranche coverage stats consumed by
+    build_apkg.py when generating deck descriptions.
 
     Parameters
     ----------
@@ -245,6 +248,7 @@ def extract_tranches(
     dataframe = pandas.read_csv(csv_file)
     cols = ['PuzzleId', 'FEN', 'Moves', 'Rating', 'Popularity', 'Themes', 'OpeningTags']
     dataframe = dataframe[cols]
+    all_stats: Dict[str, Dict] = {}
 
     first_tranche = dataframe[dataframe['Rating'] < 1000]
     sampled_rows = sample_by_themes(
@@ -253,7 +257,9 @@ def extract_tranches(
         popularity_threshold=popularity_threshold
     )
     _write_csv_file(sampled_rows, "puzzles_1000minus.csv")
-    report_theme_coverage(sampled_rows, "puzzles_1000minus.csv", first_tranche)
+    all_stats["puzzles_1000minus.csv"] = report_theme_coverage(
+        sampled_rows, "puzzles_1000minus.csv", first_tranche
+    )
 
     for elo_start in range(1000, 1800, 100):
         elo_end = elo_start + 100
@@ -265,7 +271,7 @@ def extract_tranches(
         )
         out_file = f"puzzles_{elo_start}_{elo_end}.csv"
         _write_csv_file(sampled_rows, out_file)
-        report_theme_coverage(sampled_rows, out_file, tranche)
+        all_stats[out_file] = report_theme_coverage(sampled_rows, out_file, tranche)
 
     last_tranche = dataframe[dataframe['Rating'] >= 1800]
     sampled_rows = sample_by_themes(
@@ -274,7 +280,12 @@ def extract_tranches(
         popularity_threshold=popularity_threshold
     )
     _write_csv_file(sampled_rows, "puzzles_1800plus.csv")
-    report_theme_coverage(sampled_rows, "puzzles_1800plus.csv", last_tranche)
+    all_stats["puzzles_1800plus.csv"] = report_theme_coverage(
+        sampled_rows, "puzzles_1800plus.csv", last_tranche
+    )
+
+    with open("puzzles_stats.json", "w", encoding="utf-8") as stats_file:
+        json.dump(all_stats, stats_file, indent=2)
 
 
 def _write_csv_file(sampled_rows: List, filename) -> None:
@@ -325,7 +336,7 @@ def report_theme_coverage(
     sampled_rows: List,
     out_file: str,
     tranche: pandas.DataFrame,
-) -> None:
+) -> Dict:
     """
     Generate and display theme coverage statistics for the puzzle selection.
 
@@ -340,6 +351,13 @@ def report_theme_coverage(
         Output filename for context
     tranche : pandas.DataFrame
         Original tranche data for comparison
+
+    Returns
+    -------
+    dict
+        Stats dict with keys: selected, unique_themes_sample,
+        unique_themes_tranche, coverage_pct.  Consumed by build_apkg.py
+        to populate deck descriptions.
     """
     selected_themes: set = set()
     theme_freq: dict[str, int] = {}
@@ -375,6 +393,13 @@ def report_theme_coverage(
     for theme, freq in last_themes:
         print(f"  • {theme}: {freq} puzzles")
     print("—" * 35)
+
+    return {
+        "selected": len(sampled_rows),
+        "unique_themes_sample": len(selected_themes),
+        "unique_themes_tranche": len(tranche_themes),
+        "coverage_pct": round(percentage_coverage, 1),
+    }
 
 
 def main() -> None:
