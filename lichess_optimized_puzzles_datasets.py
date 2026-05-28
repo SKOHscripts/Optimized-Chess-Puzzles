@@ -243,7 +243,10 @@ def _augment_tranche(
     quality = (nbplays * p + QUALITY_WEIGHT * QUALITY_PRIOR) / (nbplays + QUALITY_WEIGHT)
 
     has_rd = 'RatingDeviation' in tranche.columns
-    rd_ok = (tranche['RatingDeviation'].fillna(200) <= RD_MAX).astype(int) if has_rd else pandas.Series(1, index=tranche.index)
+    if has_rd:
+        rd_ok = (tranche['RatingDeviation'].fillna(200) <= RD_MAX).astype(int)
+    else:
+        rd_ok = pandas.Series(1, index=tranche.index)
 
     work = tranche.copy()
     work['_quality'] = quality
