@@ -193,7 +193,7 @@ class TestBuildDescription:
         desc = _build_description(rows)
         assert "1000" in desc
         assert "1200" in desc
-        assert "average 1100" in desc
+        assert "avg 1100" in desc
 
     def test_popularity_average(self):
         rows = [
@@ -201,7 +201,7 @@ class TestBuildDescription:
             _make_themed_row("p2", "fork", popularity="100"),
         ]
         desc = _build_description(rows)
-        assert "average 90%" in desc
+        assert "Popularity avg 90%" in desc
 
     def test_themes_listed_by_frequency(self):
         rows = [
@@ -211,9 +211,16 @@ class TestBuildDescription:
             _make_themed_row("p4", "fork"),
         ]
         desc = _build_description(rows)
-        assert "fork (3)" in desc
-        assert "pin (2)" in desc
-        assert desc.index("fork (3)") < desc.index("pin (2)")  # fork first (more frequent)
+        assert "fork: 3 puzzles" in desc
+        assert "pin: 2 puzzles" in desc
+        assert desc.index("fork: 3 puzzles") < desc.index("pin: 2 puzzles")  # fork first (more frequent)
+
+    def test_mastery_sentence_present(self):
+        rows = [_make_themed_row(f"p{i}", "fork") for i in range(40)]
+        desc = _build_description(rows)
+        # 40 puzzles at ~20/day → ~2 days
+        assert "Woodpecker plan" in desc
+        assert "2 days" in desc
 
     def test_theme_count_in_description(self):
         rows = [_make_themed_row("p1", "fork pin skewer")]
@@ -247,19 +254,38 @@ class TestBuildDescription:
 
     def test_coverage_shown_when_provided(self):
         rows = [_make_themed_row("p1", "fork pin")]
-        desc = _build_description(rows, coverage=74.3)
+        stats = {
+            "unique_themes_sample": 23,
+            "unique_motifs_sample": 18,
+            "unique_themes_tranche": 31,
+            "unique_motifs_tranche": 24,
+            "coverage_pct": 74.3,
+            "coverage_pct_all": 65.0,
+        }
+        desc = _build_description(rows, stats=stats)
         assert "74.3%" in desc
-        assert "of tranche themes" in desc
+        assert "Unique themes covered: 23 (motifs: 18)" in desc
+        assert "Distinct themes in tranche: 31 (motifs: 24)" in desc
+        assert "all-theme coverage: 65.0%" in desc
 
     def test_coverage_absent_when_none(self):
         rows = [_make_themed_row("p1", "fork pin")]
-        desc = _build_description(rows, coverage=None)
+        desc = _build_description(rows, stats=None)
         assert "tranche" not in desc
+        assert "Coverage" not in desc
 
     def test_coverage_100_percent(self):
         rows = [_make_themed_row("p1", "fork")]
-        desc = _build_description(rows, coverage=100.0)
+        desc = _build_description(rows, stats={"coverage_pct": 100.0})
         assert "100.0%" in desc
+
+    def test_full_theme_breakdown_listed(self):
+        """Every theme appears in the breakdown (not truncated)."""
+        rows = [_make_themed_row(f"p{i}", "fork") for i in range(3)]
+        rows.append(_make_themed_row("rare", "enPassant"))
+        desc = _build_description(rows)
+        assert "fork: 3 puzzles" in desc
+        assert "enPassant: 1 puzzle" in desc
 
 
 class TestLoadDeckStats:
@@ -323,7 +349,7 @@ class TestBuildFromCsvsDeckStats:
         desc = _build_description(
             [{"PuzzleID": "t1", "Themes": "fork", "Rating": "1200", "Popularity": "90",
               "FEN": "", "Moves": "", "Opening": "", "Display Theme": "", "Tags": ""}],
-            coverage=88.5,
+            stats={"coverage_pct": 88.5},
         )
         assert "88.5%" in desc
 

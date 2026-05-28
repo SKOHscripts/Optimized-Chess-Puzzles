@@ -221,6 +221,13 @@ def _meaningful_motifs(themes_str) -> List[str]:
     return [t for t in str(themes_str).split() if t and t not in THEME_DENYLIST]
 
 
+def _format_confidence(value) -> str:
+    """Format the Bayesian quality score for CSV output (3 decimals, blank if absent)."""
+    if value is None or pandas.isna(value):
+        return ""
+    return f"{float(value):.3f}"
+
+
 def _augment_tranche(
     tranche: pandas.DataFrame,
     popularity_threshold: int,
@@ -536,7 +543,7 @@ def _write_csv_file(sampled_rows: List, filename) -> None:
 
     with open(filename, "w", encoding="utf-8") as puzzle_file:
         puzzle_file.write(
-            "PuzzleID,FEN,Moves,Rating,Popularity,Themes,Opening,Display Theme,Tags\n"
+            "PuzzleID,FEN,Moves,Rating,Popularity,Themes,Opening,Display Theme,Confidence,Tags\n"
         )
 
         for row in sampled_rows:
@@ -550,6 +557,8 @@ def _write_csv_file(sampled_rows: List, filename) -> None:
             oc_openings = _ocp_prefixed_tokens(opening) if opening else ""
             tags_str = " ".join(x for x in [oc_themes, oc_openings] if x).strip()
 
+            confidence = _format_confidence(row.get('_quality'))
+
             vals = [
                 safe_str(row['PuzzleId']),
                 adj_fen,
@@ -559,6 +568,7 @@ def _write_csv_file(sampled_rows: List, filename) -> None:
                 themes,
                 opening,
                 safe_str("theme-solarized"),
+                confidence,
                 tags_str
             ]
             puzzle_file.write(",".join([v.replace(',', ';') for v in vals]) + "\n")

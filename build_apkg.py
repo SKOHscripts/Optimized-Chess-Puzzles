@@ -14,6 +14,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 import os
 import shutil
 import zipfile
@@ -39,7 +40,13 @@ NOTE_FIELDS = [
     {"name": "Themes"},
     {"name": "Opening"},
     {"name": "Display Theme"},
+    {"name": "Confidence"},    # Bayesian quality score in [0, 1] (appended last to
+                               # keep field order stable for existing collections)
 ]
+
+# Average daily intake of new puzzles recommended in the README ("~20 new
+# puzzles per day"). Used to estimate the time to master a sub-deck.
+NEW_PUZZLES_PER_DAY = 20
 
 
 class PuzzleNote(genanki.Note):
@@ -86,6 +93,7 @@ SAMPLE_CARDS: List[Dict[str, str]] = [
         "Themes": "fork sacrifice",
         "Opening": "Italian",
         "Display Theme": "theme-solarized",
+        "Confidence": "0.912",
         "Tags": "OCP::fork OCP::sacrifice OCP::Italian",
     },
     {
@@ -97,6 +105,7 @@ SAMPLE_CARDS: List[Dict[str, str]] = [
         "Themes": "pin",
         "Opening": "Italian",
         "Display Theme": "theme-solarized",
+        "Confidence": "0.874",
         "Tags": "OCP::pin OCP::Italian",
     },
     {
@@ -108,6 +117,7 @@ SAMPLE_CARDS: List[Dict[str, str]] = [
         "Themes": "endgame pawnEndgame",
         "Opening": "",
         "Display Theme": "theme-solarized",
+        "Confidence": "0.953",
         "Tags": "OCP::endgame OCP::pawnEndgame",
     },
 ]
@@ -174,6 +184,7 @@ def _row_to_note(row: Dict[str, str], model: genanki.Model) -> PuzzleNote:
             row.get("Themes", ""),
             row.get("Opening", ""),
             row.get("Display Theme", "theme-solarized"),
+            row.get("Confidence", ""),
         ],
         tags=tags,
     )
@@ -188,13 +199,56 @@ def _load_deck_stats(csv_dir: str) -> Dict[str, Dict]:
         return json.load(f)
 
 
-def _build_description(rows: List[Dict[str, str]], coverage: Optional[float] = None) -> str:
+def _mastery_sentence(count: int) -> str:
+    """Motivational one-liner estimating how long to master a deck.
+
+    Uses the README's recommended pace of ~20 new puzzles/day for a first full
+    pass, then frames the Woodpecker method (repeated accelerated cycles) as the
+    path to turning calculation into reflex.
+    """
+    days = math.ceil(count / NEW_PUZZLES_PER_DAY)
+    weeks = max(1, round(days / 7))
+    return (
+        f"🔨 Woodpecker plan: at ~{NEW_PUZZLES_PER_DAY} new puzzles/day, a first "
+        f"full pass takes about {days} days (~{weeks} week{'s' if weeks != 1 else ''}). "
+        "Then repeat the set in faster and faster cycles until the patterns become "
+        "reflexes — that's when you've mastered this deck. 🚀"
+    )
+
+
+def _coverage_lines(stats: Dict) -> List[str]:
+    """Render the coverage block from a per-tranche stats dict (missing keys skipped)."""
+    lines: List[str] = []
+    uts = stats.get("unique_themes_sample")
+    utt = stats.get("unique_themes_tranche")
+    cov = stats.get("coverage_pct")
+    if uts is None and utt is None and cov is None:
+        return lines
+
+    lines.append("")
+    lines.append("📈 Coverage:")
+    if uts is not None:
+        ums = stats.get("unique_motifs_sample")
+        suffix = f" (motifs: {ums})" if ums is not None else ""
+        lines.append(f"- Unique themes covered: {uts}{suffix}")
+    if utt is not None:
+        umt = stats.get("unique_motifs_tranche")
+        suffix = f" (motifs: {umt})" if umt is not None else ""
+        lines.append(f"- Distinct themes in tranche: {utt}{suffix}")
+    if cov is not None:
+        cov_all = stats.get("coverage_pct_all")
+        suffix = f"  (all-theme coverage: {cov_all}%)" if cov_all is not None else ""
+        lines.append(f"- Motif coverage: {cov}%{suffix}")
+    return lines
+
+
+def _build_description(rows: List[Dict[str, str]], stats: Optional[Dict] = None) -> str:
     """Build a plain-text deck description from a list of puzzle rows.
 
-    Includes puzzle count, ELO range/average, popularity average, and the top
-    themes sorted by frequency — mirroring what lichess_optimized_puzzles_datasets
-    reports at generation time.  When coverage is provided (ratio of unique themes
-    in the sample vs the full ELO tranche), it is shown inline with the theme list.
+    Mirrors the report printed by lichess_optimized_puzzles_datasets at generation
+    time: a one-line summary (count, ELO range/average, popularity average), a
+    motivational mastery estimate, the per-tranche coverage stats (when *stats* is
+    provided), and the full theme-frequency breakdown sorted by frequency.
     """
     count = len(rows)
     if count == 0:
@@ -209,23 +263,23 @@ def _build_description(rows: List[Dict[str, str]], coverage: Optional[float] = N
     ratings = [int(row["Rating"]) for row in rows if row.get("Rating", "").isdigit()]
     pops = [int(row["Popularity"]) for row in rows if row.get("Popularity", "").isdigit()]
 
-    lines: List[str] = [f"{count} puzzle{'s' if count != 1 else ''}"]
-
+    summary = f"📊 {count} puzzle{'s' if count != 1 else ''}"
     if ratings:
-        lines.append(
-            f"Rating: {min(ratings)}–{max(ratings)}, average {sum(ratings) // len(ratings)}"
-        )
+        summary += f" · Rating {min(ratings)}–{max(ratings)} (avg {sum(ratings) // len(ratings)})"
     if pops:
-        lines.append(f"Popularity: average {sum(pops) // len(pops)}%")
+        summary += f" · Popularity avg {sum(pops) // len(pops)}%"
+
+    lines: List[str] = [summary, "", _mastery_sentence(count)]
+
+    if stats:
+        lines.extend(_coverage_lines(stats))
 
     if theme_counts:
         n_themes = len(theme_counts)
-        cov_label = f" ({coverage:.1f}% of tranche themes)" if coverage is not None else ""
-        top = sorted(theme_counts.items(), key=lambda x: -x[1])[:15]
-        lines.append(
-            f"\n{n_themes} theme{'s' if n_themes != 1 else ''}{cov_label}: "
-            + " · ".join(f"{t} ({n})" for t, n in top)
-        )
+        lines.append("")
+        lines.append(f"🎯 {n_themes} theme{'s' if n_themes != 1 else ''} by frequency:")
+        for theme, freq in sorted(theme_counts.items(), key=lambda x: (-x[1], x[0])):
+            lines.append(f"  • {theme}: {freq} puzzle{'s' if freq != 1 else ''}")
 
     return "\n".join(lines)
 
@@ -264,9 +318,7 @@ def build_from_csvs(
         all_rows.extend(rows)
         deck = genanki.Deck(
             _deck_id(deck_name), deck_name,
-            description=_build_description(
-                rows, (deck_stats.get(csv_filename) or {}).get("coverage_pct")
-            ),
+            description=_build_description(rows, deck_stats.get(csv_filename)),
         )
         for row in rows:
             deck.add_note(_row_to_note(row, model))
