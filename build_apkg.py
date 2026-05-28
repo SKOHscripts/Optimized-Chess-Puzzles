@@ -29,7 +29,7 @@ MODEL_NAME = "Chess Optimized Tactics"
 MODEL_ID = 1757360269638
 
 NOTE_FIELDS = [
-    {"name": "PuzzleID"},
+    {"name": "PuzzleID"},      # index 0 — used as the stable GUID key
     {"name": "FEN"},
     {"name": "Moves"},
     {"name": "Rating"},
@@ -38,6 +38,20 @@ NOTE_FIELDS = [
     {"name": "Opening"},
     {"name": "Display Theme"},
 ]
+
+
+class PuzzleNote(genanki.Note):
+    """genanki.Note whose GUID depends only on the Puzzle ID (fields[0]).
+
+    The default genanki GUID hashes all fields together, so any change to
+    Rating or Popularity causes Anki to treat the note as a new card instead
+    of updating the existing one.  Anchoring the GUID to the Puzzle ID alone
+    makes successive imports update rather than duplicate.
+    """
+
+    @property
+    def guid(self):
+        return genanki.guid_for(self.fields[0])
 
 # All sub-decks in order. CSV filenames are relative to --csv-dir.
 # The two "00 |" decks are user-provided thematic sets; the rest are
@@ -142,9 +156,9 @@ def _build_model(front: str, back: str, css: str) -> genanki.Model:
     )
 
 
-def _row_to_note(row: Dict[str, str], model: genanki.Model) -> genanki.Note:
+def _row_to_note(row: Dict[str, str], model: genanki.Model) -> PuzzleNote:
     tags = [t for t in row.get("Tags", "").split() if t]
-    return genanki.Note(
+    return PuzzleNote(
         model=model,
         fields=[
             row.get("PuzzleID", ""),
