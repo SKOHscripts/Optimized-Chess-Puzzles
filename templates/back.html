@@ -145,12 +145,15 @@ function detectIE() {
 }
 
 /* My Board object */
-function ChessBoard(_fenCode, _attrBorder, _colorMode, _attrStyle, _attrClass) {
+function ChessBoard(_fenCode, _attrBorder, _colorMode, _attrStyle, _attrClass, _flip) {
     this.fenCode = _fenCode;
     this.attrBorder = _attrBorder.split(' ');
     this.colorMode = _colorMode;
     this.attrStyle = _attrStyle;
     this.attrClass = _attrClass;
+    // When the board is shown from Black's side (180° rotation), the coordinate
+    // labels must be mirrored: bottom-left becomes h1's mirror, not a1.
+    this.flip = !!_flip;
 
     this.rowCount = 0;
     this.colCount = 0;
@@ -321,6 +324,13 @@ function ChessBoard(_fenCode, _attrBorder, _colorMode, _attrStyle, _attrClass) {
         var generatedHTML = '';
         this.attrClass = VALUE_CLASS_COLOR_TABLE + (this.attrClass == '' ? '' : ' ' + this.attrClass);
 
+        var colsLabels = MERIDA_COORD_COLS.substr(this.coordOriginCol, this.colCount);
+        var rowsLabels = MERIDA_COORD_ROWS.substr((8 - this.coordOriginRow - this.rowCount) * 6, this.rowCount * 6);
+        if (this.flip) {
+            colsLabels = colsLabels.split('').reverse().join('');
+            rowsLabels = rowsLabels.split('<br/>').filter(function (s) { return s !== ''; }).reverse().join('<br/>') + '<br/>';
+        }
+
         /* ----- Chess table ---------------------------------------------------------------------------------------------------- */
         generatedHTML +=
             '<table class="' + this.attrClass + '"' + (this.attrStyle != '' ? ' style="' + this.attrStyle + '"' : '') + '>';
@@ -332,7 +342,7 @@ function ChessBoard(_fenCode, _attrBorder, _colorMode, _attrStyle, _attrClass) {
             generatedHTML +=
                 (this.isCoordShownLeft || this.isCoordPadded ? '<td>&nbsp;</td>' : '') +
                 '<td class="cols">' +
-                MERIDA_COORD_COLS.substr(this.coordOriginCol, this.colCount) +
+                colsLabels +
                 '</td>' +
                 (this.isCoordShownRight || this.isCoordPadded ? '<td>&nbsp;</td>' : '') +
                 '';
@@ -354,7 +364,7 @@ function ChessBoard(_fenCode, _attrBorder, _colorMode, _attrStyle, _attrClass) {
 
         if (this.isCoordShownLeft) {
             generatedHTML += '<td class="rows">';
-            generatedHTML += MERIDA_COORD_ROWS.substr((8 - this.coordOriginRow - this.rowCount) * 6, this.rowCount * 6);
+            generatedHTML += rowsLabels;
             generatedHTML += '</td>';
         } else if (this.isCoordPadded) {
             generatedHTML += '<td class="rows">';
@@ -433,7 +443,7 @@ function ChessBoard(_fenCode, _attrBorder, _colorMode, _attrStyle, _attrClass) {
 
         if (this.isCoordShownRight) {
             generatedHTML += '<td class="rows">';
-            generatedHTML += MERIDA_COORD_ROWS.substr((8 - this.coordOriginRow - this.rowCount) * 6, this.rowCount * 6);
+            generatedHTML += rowsLabels;
             generatedHTML += '</td>';
         } else if (this.isCoordPadded) {
             generatedHTML += '<td class="rows">';
@@ -450,7 +460,7 @@ function ChessBoard(_fenCode, _attrBorder, _colorMode, _attrStyle, _attrClass) {
             generatedHTML +=
                 (this.isCoordShownLeft || this.isCoordPadded ? '<td>&nbsp;</td>' : '') +
                 '<td class="cols">' +
-                MERIDA_COORD_COLS.substr(this.coordOriginCol, this.colCount) +
+                colsLabels +
                 '</td>' +
                 (this.isCoordShownRight || this.isCoordPadded ? '<td>&nbsp;</td>' : '') +
                 '';
@@ -668,7 +678,8 @@ function parseChess() {
             boardFenCode = chessElt[idx].fenCode;
         }
 
-        var board = new ChessBoard(boardFenCode, attrBorder, attrMode, attrStyle, attrClass);
+        var attrFlip = chessElt[idx].getAttribute('data-flip') === '1';
+        var board = new ChessBoard(boardFenCode, attrBorder, attrMode, attrStyle, attrClass, attrFlip);
         var generatedHTML = board.generateHTML();
         if (generatedHTML.length == 0) {
             /* No board position given. Color mode is kept for upcoming chess tags. */
@@ -728,7 +739,10 @@ function applyFenToBoard() {
   // 5) Minimal DOM updates (textContent avoids accidental HTML parsing)
   const fig = document.getElementById('fen_fig');
   const toMove = document.getElementById('to_move');
-  if (fig) fig.textContent = oriented;
+  if (fig) {
+    fig.textContent = oriented;
+    fig.setAttribute('data-flip', side === 'w' ? '0' : '1');
+  }
   if (toMove) toMove.textContent = side === 'w' ? dict.white : dict.black;
 
   // 6) coords button label (shared from same dict, avoids a second lang lookup)
@@ -741,9 +755,6 @@ function applyFenToBoard() {
 function fitChessBoardToScreen() {
   const table = document.querySelector('table.chess, table.bwchess');
   if (!table) return;
-
-  // Measure the real board box (more reliable than the table alone)
-  const board = table.querySelector('td.board > div.board') || table;
 
   // Reset any previous fitting
   table.style.zoom = '';
@@ -764,8 +775,9 @@ function fitChessBoardToScreen() {
   const maxW = Math.max(50, vw - margin * 2);
   const maxH = Math.max(50, vh - overhead - margin * 2);
 
-  // Measure actual current board size
-  const rect = board.getBoundingClientRect();
+  // Measure the full table (board + coordinate cells) so the right-hand
+  // coordinates never push the board off-screen when shown.
+  const rect = table.getBoundingClientRect();
 
   // Fit factor (never upscale; only shrink)
   let z = Math.min(maxW / rect.width, maxH / rect.height, 1);

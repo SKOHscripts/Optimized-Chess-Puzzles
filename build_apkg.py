@@ -326,7 +326,7 @@ def build_full(csv_dir: str, output: str) -> None:
     import lichess_optimized_puzzles_datasets as ld  # pylint: disable=import-outside-toplevel
     ld.download_puzzle_db()
     ld.decompress_zst()
-    stats = ld.extract_tranches(ld.CSV_FILE, target_per_theme=20, popularity_threshold=90)
+    stats = ld.extract_tranches(ld.CSV_FILE, target_per_theme=17, popularity_threshold=90)
     build_from_csvs(csv_dir, output, deck_stats=stats)
 
 

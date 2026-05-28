@@ -172,7 +172,7 @@ def uci_seq_to_san(fen: str, uci_moves: str) -> str:
 
 def sample_by_themes(
     tranche: pandas.DataFrame,
-    target_per_theme: int = 30,
+    target_per_theme: int = 17,
     popularity_threshold: int = 90,
 ) -> List:
     """
@@ -185,7 +185,7 @@ def sample_by_themes(
     ----------
     tranche : pandas.DataFrame
         DataFrame containing puzzles for a specific ELO range
-    target_per_theme : int, default=30
+    target_per_theme : int, default=17
         Maximum number of puzzles to select per theme
     popularity_threshold : int, default=90
         Minimum popularity score for initial selection
@@ -225,7 +225,7 @@ def sample_by_themes(
 
 def extract_tranches(
     csv_file: str,
-    target_per_theme: int = 30,
+    target_per_theme: int = 17,
     popularity_threshold: int = 90,
 ) -> Dict[str, Dict]:
     """
@@ -240,7 +240,7 @@ def extract_tranches(
     ----------
     csv_file : str
         Path to the decompressed puzzle database CSV file
-    target_per_theme : int, default=30
+    target_per_theme : int, default=17
         Maximum puzzles per theme for balanced sampling
     popularity_threshold : int, default=90
         Minimum popularity threshold for quality filtering
@@ -413,7 +413,7 @@ def main() -> None:
     """
     download_puzzle_db()
     decompress_zst()
-    extract_tranches(CSV_FILE, target_per_theme=20, popularity_threshold=90)
+    extract_tranches(CSV_FILE, target_per_theme=17, popularity_threshold=90)
 
 
 if __name__ == "__main__":

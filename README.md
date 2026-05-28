@@ -179,13 +179,13 @@ The script downloads the **complete Lichess database** (several million puzzles)
 **Fundamental principle:** Instead of simply taking the most popular puzzles (which would create redundancies), the script applies a **maximum coverage algorithm by theme**:
 
 ```python
-def sample_by_themes(tranche, target_per_theme=20, popularity_threshold=90):
+def sample_by_themes(tranche, target_per_theme=17, popularity_threshold=90):
 ```
 
 **Selection steps:**
 1. **Theme identification**: Extract all tactical themes (fork, pin, discovered attack, etc.)
 2. **Quality filtering**: Priority selection of puzzles with Popularity ≥ 90%
-3. **Balanced distribution**: Maximum 20 puzzles per theme to avoid overrepresentation
+3. **Balanced distribution**: Maximum 17 puzzles per theme to avoid overrepresentation
 4. **Intelligent complement**: Add puzzles with lower popularity for rare themes
 
 ### **3. Exhaustive Coverage Guarantee 📊**
