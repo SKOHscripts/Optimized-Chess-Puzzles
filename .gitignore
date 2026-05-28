@@ -31,6 +31,7 @@ chess_openings.csv
 !puzzles_errors_traps.csv
 !puzzles_openings.csv
 opening_report.txt
+puzzles_stats.json
 
 # IDE
 .vscode/

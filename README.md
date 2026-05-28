@@ -16,9 +16,9 @@
 
 **Scientifically Curated Training Deck for Chess Tactical Mastery for [Anki](https://apps.ankiweb.net/)** featuring:
 
-- **12674** puzzles curated from [complete Lichess database](https://database.lichess.org/) using advanced thematic sampling algorithms
-- Each 100 ELO range containing **~1200** puzzles
-- **≥98.4%** coverage over all themes available in each 100 ELO range
+- **~16 800** puzzles curated from [complete Lichess database](https://database.lichess.org/) using advanced thematic sampling algorithms
+- Each ELO band targeting **~1200** puzzles (14 sub-decks)
+- **Near-100%** motif coverage per ELO band (tactical themes only, metadata tags excluded)
 - Pedagogical quality for systematic chess improvement.
 - **500+ opening variations** across 13+ major families
 - **Color-balanced training** with separate analysis for white openings and black defenses
@@ -130,7 +130,7 @@ The only way to use puzzles and transpose them into real games is to learn to ca
 ## 🔬 Training Methodologies
 
 ### **1. Woodpecker Method by ELO Range 🔨**
-Each range (~1200 puzzles) allows you to apply the famous Woodpecker method: solve the same set multiple times in accelerated cycles to develop automatic recognition of tactical patterns. This approach transforms conscious thinking into unconscious reflexes, drastically increasing calculation speed in games. [[1](https://forwardchess.com/blog/what-is-the-woodpecker-method/)]
+Each range (~1200 puzzles, 14 sub-decks: <1000, 1000–1100, …, 1700–1800, 1800–1900, 1900–2000, 2000–2200, 2200+) allows you to apply the famous Woodpecker method: solve the same set multiple times in accelerated cycles to develop automatic recognition of tactical patterns. This approach transforms conscious thinking into unconscious reflexes, drastically increasing calculation speed in games. [[1](https://forwardchess.com/blog/what-is-the-woodpecker-method/)]
 
 ### **2. Personalized Spaced Repetition 🧠🔄**
 Use Anki's spaced repetition system to optimize learning according to your current level. The carefully selected puzzles guarantee constant progress without excessive frustration. Research shows that spaced repetition improves long-term retention by **200-300%** compared to traditional methods. [[2](https://www.bananote.ai/blog/the-complete-spaced-repetition-schedule-for-long-term-retention-a-science-based-guide-to-never-forgetting-what-you-learn)], [[3](https://pmc.ncbi.nlm.nih.gov/articles/PMC12357012/)]
@@ -176,20 +176,22 @@ Solution, themes, and analysis links appear only after your attempt, respecting 
 The script downloads the **complete Lichess database** (several million puzzles) and automatically processes it. This database contains all community-validated puzzles with their metadata: ELO rating, popularity, tactical themes, and associated openings.
 
 ### **2. Intelligent Sampling by Thematic Diversity 🎯**
-**Fundamental principle:** Instead of simply taking the most popular puzzles (which would create redundancies), the script applies a **maximum coverage algorithm by theme**:
+**Fundamental principle:** Instead of simply taking the most popular puzzles (which would create redundancies), the script applies a **maximum-coverage algorithm** with a Bayesian quality score and explicit motif caps:
 
 ```python
-def sample_by_themes(tranche, target_per_theme=17, popularity_threshold=90):
+def sample_by_themes(tranche, target_per_theme=17, popularity_threshold=90,
+                     target_deck_size=1200, min_nbplays=20):
 ```
 
 **Selection steps:**
-1. **Theme identification**: Extract all tactical themes (fork, pin, discovered attack, etc.)
-2. **Quality filtering**: Priority selection of puzzles with Popularity ≥ 90%
-3. **Balanced distribution**: Maximum 17 puzzles per theme to avoid overrepresentation
-4. **Intelligent complement**: Add puzzles with lower popularity for rare themes
+1. **Quality scoring**: Each puzzle gets a Bayesian confidence score combining Popularity and NbPlays — a 100%/3-plays puzzle correctly ranks below a 92%/5000-plays puzzle.
+2. **Motif filtering**: A denylist removes non-tactical metadata tags (`mateIn1..5`, `oneMove`, `short/long`, `crushing`, `master`…) so the diversity objective targets real patterns.
+3. **Vectorized fast-pass**: For each meaningful motif, select the top `target_per_theme` puzzles by quality from the primary pool (Popularity ≥ 90%, NbPlays ≥ 20).
+4. **Theme-aware complement**: Any motif still uncovered (e.g., only found in low-popularity puzzles) gets a best-available puzzle added without a popularity gate.
+5. **Quality top-up**: Fill to `target_deck_size` in quality order, respecting a **true per-motif cap** that counts co-occurrences across all motifs of each selected puzzle.
 
 ### **3. Exhaustive Coverage Guarantee 📊**
-If thematic sampling produces fewer than 700 puzzles, the script automatically completes with the most popular remaining puzzles, guaranteeing sufficient volume for intensive training while preserving diversity.
+If thematic sampling produces fewer than 700 puzzles (only for tiny tranches), the script fills up with the highest-quality remaining puzzles. In normal operation, the theme-aware complement step guarantees ≥ 1 puzzle per tactical motif present in the tranche.
 
 ### **4. Optimized Technical Preprocessing 🔄**
 **Crucial point**: Lichess puzzles show the position **before** the opponent's move. The script automatically applies this first move to present the real position to solve, then converts remaining moves to readable notation (SAN).
@@ -357,9 +359,9 @@ This deck combines the best modern pedagogical practices:
 ### 📊 Statistics
 - **Based on**: Lichess community database
 - **Optimization**: Spaced repetition algorithms
-- **Coverage**: >98% thematic coverage per ELO range
-- **Quality**: 90%+ community approval rating
-- **Volume**: ~1200 puzzles per ELO range
+- **Coverage**: Near-100% motif coverage per ELO band (tactical themes, denylist applied)
+- **Quality**: Bayesian quality score combining Popularity + NbPlays (confidence-weighted)
+- **Volume**: ~1200 puzzles per ELO band (14 sub-decks, bounded high-ELO ranges)
 
 ***
 
