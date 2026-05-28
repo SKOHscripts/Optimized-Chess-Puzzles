@@ -69,10 +69,10 @@ RD_MAX: int = 90
 THEME_DENYLIST: Set[str] = {
     # Move-count / length descriptors
     "oneMove", "short", "long", "veryLong",
-    # Forced-mate labels (the motif is checkmate, which is already tactical, but
+    # Forced-mate labels (the motif is mate, which is already tactical, but
     # the sub-labels add no diversity signal — every "mateIn2" theme is the same
     # diversity unit regardless of the motif that leads to it)
-    "mate", "mateIn1", "mateIn2", "mateIn3", "mateIn4", "mateIn5",
+    "mateIn1", "mateIn2", "mateIn3", "mateIn4", "mateIn5",
     # Evaluation buckets (outcome, not motif)
     "crushing", "advantage", "equality",
     # Game-phase tags (broad phases, not specific patterns; sub-motifs like
@@ -218,13 +218,16 @@ def uci_seq_to_san(fen: str, uci_moves: str) -> str:
 
 def _meaningful_motifs(themes_str) -> List[str]:
     """Return the tactical-motif tokens from a Themes string, excluding metadata tags."""
+
     return [t for t in str(themes_str).split() if t and t not in THEME_DENYLIST]
 
 
 def _format_confidence(value) -> str:
     """Format the Bayesian quality score for CSV output (3 decimals, blank if absent)."""
+
     if value is None or pandas.isna(value):
         return ""
+
     return f"{float(value):.3f}"
 
 
@@ -250,6 +253,7 @@ def _augment_tranche(
     quality = (nbplays * p + QUALITY_WEIGHT * QUALITY_PRIOR) / (nbplays + QUALITY_WEIGHT)
 
     has_rd = 'RatingDeviation' in tranche.columns
+
     if has_rd:
         rd_ok = (tranche['RatingDeviation'].fillna(200) <= RD_MAX).astype(int)
     else:
@@ -263,8 +267,10 @@ def _augment_tranche(
     all_motifs: set = {m for ml in work['_motifs'] for m in ml}
 
     prim_mask = work['Popularity'] >= popularity_threshold
+
     if has_nbplays:
         prim_mask = prim_mask & (work['NbPlays'].fillna(0) >= min_nbplays)
+
     return work, all_motifs, work[prim_mask]
 
 
@@ -283,6 +289,7 @@ def _fast_pass(
 
     Returns an ordered list of PuzzleIds.
     """
+
     if primary_pool.empty or not all_motifs:
         return []
     exploded = primary_pool.explode('_motifs')
@@ -294,10 +301,12 @@ def _fast_pass(
     per_motif_top = exploded.groupby('_motifs').head(target_per_theme)
     seen: List[str] = []
     seen_set: set = set()
+
     for pid in per_motif_top['PuzzleId']:
         if pid not in seen_set:
             seen_set.add(pid)
             seen.append(pid)
+
     return seen
 
 
@@ -313,6 +322,7 @@ def _find_complement_pids(
     are low-popularity puzzles are still covered.  Returns a list of PuzzleIds
     (one per uncovered motif, no duplicates).
     """
+
     if not uncovered:
         return []
     pool = work[~work['PuzzleId'].isin(selected_ids)].explode('_motifs')
@@ -324,13 +334,16 @@ def _find_complement_pids(
     result: List[str] = []
     covered: set = set()
     used: set = set()
+
     for _, row in pool.iterrows():
         motif = row['_motifs']
         pid = row['PuzzleId']
+
         if motif not in covered and pid not in used:
             covered.add(motif)
             used.add(pid)
             result.append(pid)
+
     return result
 
 
@@ -350,18 +363,22 @@ def _quality_topup(
 
     Returns an ordered list of PuzzleIds.
     """
+
     if n_remaining <= 0:
         return []
     remaining = work[~work['PuzzleId'].isin(selected_ids)].sort_values(
         ['_rd_ok', '_quality', 'PuzzleId'], ascending=[False, False, True]
     )
     result: List[str] = []
+
     for _, row in remaining.iterrows():
         if len(result) >= n_remaining:
             break
         motifs = row['_motifs']
+
         if not motifs or any(motif_count.get(m, 0) < target_per_theme for m in motifs):
             result.append(row['PuzzleId'])
+
     return result
 
 
@@ -432,6 +449,7 @@ def sample_by_themes(
     list
         List of selected puzzle rows ensuring thematic diversity
     """
+
     if tranche.empty:
         return []
 
@@ -449,6 +467,7 @@ def sample_by_themes(
         row = work.iloc[work_by_pid[str(pid)]]
         selected_ids.add(pid)
         selected_rows.append(row)
+
         for m in row['_motifs']:
             motif_count[m] = motif_count.get(m, 0) + 1
 
@@ -466,6 +485,7 @@ def sample_by_themes(
         extras = work[~work['PuzzleId'].isin(selected_ids)].sort_values(
             ['_rd_ok', '_quality', 'PuzzleId'], ascending=[False, False, True]
         ).head(needed)
+
         for _, row in extras.iterrows():
             selected_rows.append(row)
             selected_ids.add(row['PuzzleId'])
@@ -524,6 +544,7 @@ def extract_tranches(
 
     with open("puzzles_stats.json", "w", encoding="utf-8") as stats_file:
         json.dump(all_stats, stats_file, indent=2)
+
     return all_stats
 
 
@@ -539,6 +560,7 @@ def _write_csv_file(sampled_rows: List, filename) -> None:
     """
     def _ocp_prefixed_tokens(text: str) -> str:
         tokens = [t for t in re.split(r'[\s,;|]+', text.strip()) if t]
+
         return " ".join(f"OCP::{t}" for t in tokens)
 
     with open(filename, "w", encoding="utf-8") as puzzle_file:
@@ -611,18 +633,24 @@ def report_theme_coverage(
         for t in str(row['Themes']).split():
             selected_themes.add(t)
             theme_freq[t] = theme_freq.get(t, 0) + 1
+
         for m in _meaningful_motifs(str(row['Themes'])):
             selected_motifs.add(m)
 
     tranche_themes = {
         t
+
         for ts in (tranche['Themes'].fillna('').astype(str) if 'Themes' in tranche.columns else [])
+
         for t in ts.split()
+
         if t
     }
     tranche_motifs = {
         m
+
         for ts in (tranche['Themes'].fillna('').astype(str) if 'Themes' in tranche.columns else [])
+
         for m in _meaningful_motifs(ts)
     }
 
