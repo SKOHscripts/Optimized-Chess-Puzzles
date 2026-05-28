@@ -24,7 +24,7 @@ jobs:
           cache-dependency-path: requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest pytest-cov
+        run: pip install -r requirements-build.txt pytest pytest-cov
 
       - name: Run tests with coverage
         run: pytest tests/ --cov=lichess_optimized_puzzles_datasets --cov-report=xml --cov-report=term-missing -v

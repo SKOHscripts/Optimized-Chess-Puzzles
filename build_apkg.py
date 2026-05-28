@@ -13,23 +13,25 @@ Usage:
 import argparse
 import csv
 import hashlib
+import json
 import os
 import shutil
 import zipfile
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List, Optional
 
 import genanki
 
 DECK_PARENT = "♟️ Optimized Chess Puzzles"
 MODEL_NAME = "Chess Optimized Tactics"
+MEDIA_PATH = os.path.join("♟️_Optimized_Chess_Puzzles", "media", "_chess_merida_unicode.ttf")
 
 # Stable ID matching the reference deck (do not change — Anki uses it to
 # identify the note type when merging with existing collections).
 MODEL_ID = 1757360269638
 
 NOTE_FIELDS = [
-    {"name": "PuzzleID"},
+    {"name": "PuzzleID"},      # index 0 — used as the stable GUID key
     {"name": "FEN"},
     {"name": "Moves"},
     {"name": "Rating"},
@@ -38,6 +40,20 @@ NOTE_FIELDS = [
     {"name": "Opening"},
     {"name": "Display Theme"},
 ]
+
+
+class PuzzleNote(genanki.Note):
+    """genanki.Note whose GUID depends only on the Puzzle ID (fields[0]).
+
+    The default genanki GUID hashes all fields together, so any change to
+    Rating or Popularity causes Anki to treat the note as a new card instead
+    of updating the existing one.  Anchoring the GUID to the Puzzle ID alone
+    makes successive imports update rather than duplicate.
+    """
+
+    @property
+    def guid(self):
+        return genanki.guid_for(self.fields[0])
 
 # All sub-decks in order. CSV filenames are relative to --csv-dir.
 # The two "00 |" decks are user-provided thematic sets; the rest are
@@ -142,9 +158,9 @@ def _build_model(front: str, back: str, css: str) -> genanki.Model:
     )
 
 
-def _row_to_note(row: Dict[str, str], model: genanki.Model) -> genanki.Note:
+def _row_to_note(row: Dict[str, str], model: genanki.Model) -> PuzzleNote:
     tags = [t for t in row.get("Tags", "").split() if t]
-    return genanki.Note(
+    return PuzzleNote(
         model=model,
         fields=[
             row.get("PuzzleID", ""),
@@ -160,16 +176,75 @@ def _row_to_note(row: Dict[str, str], model: genanki.Model) -> genanki.Note:
     )
 
 
-def build_from_csvs(csv_dir: str, output: str) -> None:
-    """Build a real .apkg from the generated puzzle CSV files."""
+def _load_deck_stats(csv_dir: str) -> Dict[str, Dict]:
+    """Load per-tranche coverage stats written by lichess_optimized_puzzles_datasets."""
+    path = os.path.join(csv_dir, "puzzles_stats.json")
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _build_description(rows: List[Dict[str, str]], coverage: Optional[float] = None) -> str:
+    """Build a plain-text deck description from a list of puzzle rows.
+
+    Includes puzzle count, ELO range/average, popularity average, and the top
+    themes sorted by frequency — mirroring what lichess_optimized_puzzles_datasets
+    reports at generation time.  When coverage is provided (ratio of unique themes
+    in the sample vs the full ELO tranche), it is shown inline with the theme list.
+    """
+    count = len(rows)
+    if count == 0:
+        return ""
+
+    theme_counts: Dict[str, int] = {}
+    for row in rows:
+        for theme in row.get("Themes", "").split():
+            if theme:
+                theme_counts[theme] = theme_counts.get(theme, 0) + 1
+
+    ratings = [int(row["Rating"]) for row in rows if row.get("Rating", "").isdigit()]
+    pops = [int(row["Popularity"]) for row in rows if row.get("Popularity", "").isdigit()]
+
+    lines: List[str] = [f"{count} puzzle{'s' if count != 1 else ''}"]
+
+    if ratings:
+        lines.append(
+            f"Rating: {min(ratings)}–{max(ratings)}, average {sum(ratings) // len(ratings)}"
+        )
+    if pops:
+        lines.append(f"Popularity: average {sum(pops) // len(pops)}%")
+
+    if theme_counts:
+        n_themes = len(theme_counts)
+        cov_label = f" ({coverage:.1f}% of tranche themes)" if coverage is not None else ""
+        top = sorted(theme_counts.items(), key=lambda x: -x[1])[:15]
+        lines.append(
+            f"\n{n_themes} theme{'s' if n_themes != 1 else ''}{cov_label}: "
+            + " · ".join(f"{t} ({n})" for t, n in top)
+        )
+
+    return "\n".join(lines)
+
+
+def build_from_csvs(
+    csv_dir: str,
+    output: str,
+    deck_stats: Optional[Dict] = None,
+) -> None:
+    """Build a real .apkg from the generated puzzle CSV files.
+
+    deck_stats may be passed directly (e.g. from build_full()) to avoid
+    reading puzzles_stats.json from disk; otherwise the JSON is loaded if
+    present.
+    """
     front, back, css = _load_templates()
     model = _build_model(front, back, css)
 
-    media_path = os.path.join(
-        "♟️_Optimized_Chess_Puzzles", "media", "_chess_merida_unicode.ttf"
-    )
-
+    if deck_stats is None:
+        deck_stats = _load_deck_stats(csv_dir)
     decks: List[genanki.Deck] = []
+    all_rows: List[Dict[str, str]] = []
     total_notes = 0
 
     for csv_filename, deck_suffix in ALL_DECKS:
@@ -179,30 +254,40 @@ def build_from_csvs(csv_dir: str, output: str) -> None:
             continue
 
         deck_name = f"{DECK_PARENT}::{deck_suffix}"
-        deck = genanki.Deck(_deck_id(deck_name), deck_name)
 
         with open(csv_path, encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            count = 0
-            for row in reader:
-                deck.add_note(_row_to_note(row, model))
-                count += 1
+            rows = list(csv.DictReader(f))
+
+        all_rows.extend(rows)
+        deck = genanki.Deck(
+            _deck_id(deck_name), deck_name,
+            description=_build_description(
+                rows, (deck_stats.get(csv_filename) or {}).get("coverage_pct")
+            ),
+        )
+        for row in rows:
+            deck.add_note(_row_to_note(row, model))
 
         decks.append(deck)
-        total_notes += count
-        print(f"  ✓ {deck_suffix}: {count} cards")
+        total_notes += len(rows)
+        print(f"  ✓ {deck_suffix}: {len(rows)} cards")
 
     if not decks:
         print("No CSV files found. Run lichess_optimized_puzzles_datasets.py first.")
         return
 
+    parent_deck = genanki.Deck(
+        _deck_id(DECK_PARENT), DECK_PARENT, description=_build_description(all_rows)
+    )
+    decks.insert(0, parent_deck)
+
     package = genanki.Package(decks)
-    if os.path.exists(media_path):
-        package.media_files = [media_path]
+    if os.path.exists(MEDIA_PATH):
+        package.media_files = [MEDIA_PATH]
 
     package.write_to_file(output)
     _upgrade_to_anki21(output)
-    print(f"\n✅ Built {output} — {total_notes} cards across {len(decks)} sub-decks")
+    print(f"\n✅ Built {output} — {total_notes} cards across {len(decks) - 1} sub-decks")
 
 
 def build_sample(output: str) -> None:
@@ -210,18 +295,39 @@ def build_sample(output: str) -> None:
     front, back, css = _load_templates()
     model = _build_model(front, back, css)
 
+    sample_rows: List[Dict[str, str]] = list(SAMPLE_CARDS)
+    desc = _build_description(sample_rows)
+
     decks: List[genanki.Deck] = []
     for _, deck_suffix in ALL_DECKS:
         deck_name = f"{DECK_PARENT}::{deck_suffix}"
-        deck = genanki.Deck(_deck_id(deck_name), deck_name)
+        deck = genanki.Deck(_deck_id(deck_name), deck_name, description=desc)
         for card in SAMPLE_CARDS:
             deck.add_note(_row_to_note(card, model))
         decks.append(deck)
+
+    parent_deck = genanki.Deck(_deck_id(DECK_PARENT), DECK_PARENT, description=desc)
+    decks.insert(0, parent_deck)
 
     package = genanki.Package(decks)
     package.write_to_file(output)
     _upgrade_to_anki21(output)
     print(f"✅ Built sample {output} — {len(SAMPLE_CARDS)} cards × {len(ALL_DECKS)} sub-decks")
+
+
+def build_full(csv_dir: str, output: str) -> None:
+    """Run the full pipeline in a single process: download → process → build.
+
+    Imports lichess_optimized_puzzles_datasets lazily so pandas/chess are
+    only loaded when this function is actually called.  Coverage stats flow
+    directly from extract_tranches() to build_from_csvs() in memory,
+    bypassing puzzles_stats.json entirely.
+    """
+    import lichess_optimized_puzzles_datasets as ld  # pylint: disable=import-outside-toplevel
+    ld.download_puzzle_db()
+    ld.decompress_zst()
+    stats = ld.extract_tranches(ld.CSV_FILE, target_per_theme=20, popularity_threshold=90)
+    build_from_csvs(csv_dir, output, deck_stats=stats)
 
 
 def main() -> None:
@@ -238,10 +344,17 @@ def main() -> None:
         action="store_true",
         help="Build a minimal demo deck (no real CSVs needed)",
     )
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Full pipeline: download Lichess data, process it, then build .apkg",
+    )
     args = parser.parse_args()
 
     print(f"Building Anki deck: {args.output}")
-    if args.sample:
+    if args.full:
+        build_full(args.csv_dir, args.output)
+    elif args.sample:
         build_sample(args.output)
     else:
         build_from_csvs(args.csv_dir, args.output)
