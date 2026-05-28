@@ -70,7 +70,10 @@ ALL_DECKS: List[tuple] = [
     ("puzzles_1500_1600.csv",    "07 | 1500 - 1600 ELO"),
     ("puzzles_1600_1700.csv",    "08 | 1600 - 1700 ELO"),
     ("puzzles_1700_1800.csv",    "09 | 1700 - 1800 ELO"),
-    ("puzzles_1800plus.csv",     "10 | 1800+ ELO"),
+    ("puzzles_1800_1900.csv",    "10 | 1800 - 1900 ELO"),
+    ("puzzles_1900_2000.csv",    "11 | 1900 - 2000 ELO"),
+    ("puzzles_2000_2200.csv",    "12 | 2000 - 2200 ELO"),
+    ("puzzles_2200plus.csv",     "13 | 2200+ ELO"),
 ]
 
 SAMPLE_CARDS: List[Dict[str, str]] = [
@@ -326,7 +329,8 @@ def build_full(csv_dir: str, output: str) -> None:
     import lichess_optimized_puzzles_datasets as ld  # pylint: disable=import-outside-toplevel
     ld.download_puzzle_db()
     ld.decompress_zst()
-    stats = ld.extract_tranches(ld.CSV_FILE, target_per_theme=17, popularity_threshold=90)
+    stats = ld.extract_tranches(ld.CSV_FILE, target_per_theme=17, popularity_threshold=90,
+                               target_deck_size=1200)
     build_from_csvs(csv_dir, output, deck_stats=stats)
 
 
