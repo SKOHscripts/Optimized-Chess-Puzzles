@@ -302,7 +302,10 @@ The deck is now available in your Anki collection, organized by ELO ranges with 
 - **Unified Tags**: Merged themes + openings for easy filtering
 - **Direct links** to Lichess and Chess.com for deeper analysis
 - **Metadata**: Rating, popularity for progress tracking
+- **Confidence**: The Bayesian quality score computed at selection time (Popularity + NbPlays, confidence-weighted), shown on the back as a ★ pill so you can gauge how community-validated each puzzle is
 - **Diplay theme** used for the card (available themes are *theme-solarized*, *theme-paper-sand* and nothing for default theme)
+
+Every sub-deck also carries a **rich description** generated from the selection statistics: puzzle count, ELO range/average, average popularity, motif/theme coverage, a full theme-frequency breakdown, and a Woodpecker-based estimate of how long it takes to master the band (at ~20 new puzzles/day).
 
 This project thus transforms a raw database of millions of puzzles into **custom training sets**, optimized for systematic progression and lasting memorization of tactical patterns essential at each level! 🚀♟️
 
