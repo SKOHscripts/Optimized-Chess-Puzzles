@@ -211,6 +211,88 @@ def uci_seq_to_san(fen: str, uci_moves: str) -> str:
     return " ".join(san_moves)
 
 
+def mate_alternatives_san(fen: str, uci_moves: str) -> List[str]:
+    """
+    List the other legal moves that also give checkmate on the final move.
+
+    Lichess stores a single solution line per puzzle, but its interface accepts
+    any move that mates on the last move of the line. This reproduces that rule
+    so a static card does not mark a valid mating move as wrong.
+
+    Parameters
+    ----------
+    fen : str
+        Starting position in FEN notation
+    uci_moves : str
+        Space-separated UCI solution moves (e.g., "d1h5 g8h8 h5h7")
+
+    Returns
+    -------
+    list[str]
+        SAN of the alternative mating moves (excluding the one in the solution),
+        empty if the solution does not end with checkmate or has no alternative.
+    """
+    moves = uci_moves.strip().split()
+
+    if not moves:
+        return []
+
+    board = chess.Board(fen)
+
+    for move_uci in moves[:-1]:
+        board.push(board.parse_uci(move_uci))
+
+    final_move = board.parse_uci(moves[-1])
+    board.push(final_move)
+    is_mate = board.is_checkmate()
+    board.pop()
+
+    if not is_mate:
+        return []
+
+    alternatives = []
+
+    for move in board.legal_moves:
+        if move == final_move:
+            continue
+
+        san = board.san(move)
+
+        if san.endswith("#"):
+            alternatives.append(san)
+
+    return alternatives
+
+
+def solution_to_san(fen: str, uci_moves: str) -> str:
+    """
+    Convert a UCI solution to SAN and append alternative final mates, if any.
+
+    Example: "Qh7# (or Qg8#)". Commas are avoided because the CSV writer
+    replaces them with semicolons.
+
+    Parameters
+    ----------
+    fen : str
+        Starting position in FEN notation
+    uci_moves : str
+        Space-separated UCI solution moves
+
+    Returns
+    -------
+    str
+        Space-separated SAN moves, with " (or ... / ...)" appended when other
+        moves also deliver mate on the last move.
+    """
+    san = uci_seq_to_san(fen, uci_moves)
+    alternatives = mate_alternatives_san(fen, uci_moves)
+
+    if alternatives:
+        san += f" (or {' / '.join(alternatives)})"
+
+    return san
+
+
 # ---------------------------------------------------------------------------
 # Sampling helpers
 # ---------------------------------------------------------------------------
@@ -570,7 +652,7 @@ def _write_csv_file(sampled_rows: List, filename) -> None:
 
         for row in sampled_rows:
             adj_fen, adj_moves = adjust_fen_and_moves(row['FEN'], row['Moves'])
-            san_moves = uci_seq_to_san(adj_fen, adj_moves)
+            san_moves = solution_to_san(adj_fen, adj_moves)
 
             themes = safe_str(row['Themes'])
             opening = safe_str(row['OpeningTags'])

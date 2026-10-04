@@ -297,7 +297,7 @@ If you already have the deck and want to update it:
 
 The deck is now available in your Anki collection, organized by ELO ranges with optimized spaced repetition intervals. Each card includes:
 - **FEN Position**: Real position to analyze (after preprocessing)
-- **Moves_SAN**: Move sequence in readable notation
+- **Moves_SAN**: Move sequence in readable notation. When the last move is a checkmate and other moves also mate, they are listed, e.g. `Qh7# (or Qg8#)` (Lichess accepts any mating move)
 - **Tactical themes** and **opening tags** to display
 - **Unified Tags**: Merged themes + openings for easy filtering
 - **Direct links** to Lichess and Chess.com for deeper analysis

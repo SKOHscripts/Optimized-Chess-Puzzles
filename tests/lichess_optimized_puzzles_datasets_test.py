@@ -110,6 +110,44 @@ def test_uci_seq_to_san_empty():
     assert lichess_optimized_puzzles_datasets.uci_seq_to_san(fen, "") == ""
 
 
+# Back-rank position where either white rook can mate on the 8th rank.
+BACK_RANK_FEN = "6k1/5ppp/8/8/8/8/1R6/R5K1 w - - 0 1"
+
+
+def test_mate_alternatives_lists_other_mating_moves():
+    """
+    Two rooks can both mate on the back rank: the unused one is reported.
+    """
+    alts = lichess_optimized_puzzles_datasets.mate_alternatives_san(BACK_RANK_FEN, "b2b8")
+    assert alts == ["Ra8#"]
+    alts = lichess_optimized_puzzles_datasets.mate_alternatives_san(BACK_RANK_FEN, "a1a8")
+    assert alts == ["Rb8#"]
+
+
+def test_mate_alternatives_empty_when_solution_is_not_mate():
+    """
+    No alternatives are reported when the final move does not deliver mate.
+    """
+    assert lichess_optimized_puzzles_datasets.mate_alternatives_san(BACK_RANK_FEN, "b2b3") == []
+    assert lichess_optimized_puzzles_datasets.mate_alternatives_san(BACK_RANK_FEN, "") == []
+
+
+def test_mate_alternatives_only_checks_final_move():
+    """
+    Only the last move of a multi-move line is compared with alternatives.
+    """
+    fen = chess.STARTING_FEN
+    assert lichess_optimized_puzzles_datasets.mate_alternatives_san(fen, "e2e4 e7e5") == []
+
+
+def test_solution_to_san_appends_alternatives():
+    """
+    The SAN solution mentions other mates, and is unchanged when there are none.
+    """
+    assert lichess_optimized_puzzles_datasets.solution_to_san(BACK_RANK_FEN, "b2b8") == "Rb8# (or Ra8#)"
+    assert lichess_optimized_puzzles_datasets.solution_to_san(chess.STARTING_FEN, "e2e4 e7e5") == "e4 e5"
+
+
 def test_sample_by_themes_balances_themes_and_handles_duplicates(sample_puzzles):
     """
     Ensure sampling gives correct diversity, honors popularity threshold, and prevents duplicates.
